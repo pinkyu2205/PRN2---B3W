@@ -1,0 +1,21 @@
+@page
+@model YukiSoraShop.Pages.Auth.LogoutModel
+@{
+    ViewData["Title"] = "Đăng xuất";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h2 class="card-title mb-4">Đăng xuất thành công</h2>
+                    <p class="card-text">Bạn đã đăng xuất khỏi tài khoản.</p>
+                    <a href="/" class="btn btn-primary">Về trang chủ</a>
+                    <a href="/Auth/Login" class="btn btn-outline-primary ms-2">Đăng nhập lại</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

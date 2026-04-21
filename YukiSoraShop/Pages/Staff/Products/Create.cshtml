@@ -1,0 +1,192 @@
+@page
+@model YukiSoraShop.Pages.Staff.Products.StaffProductCreateModel
+@{
+    ViewData["Title"] = "Thêm sản phẩm mới";
+}
+
+<div class="container-fluid px-4 py-3">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="fw-bold mb-0 text-primary">
+            <i class="fas fa-boxes me-2"></i> Thêm sản phẩm mới
+        </h2>
+        <a href="/Staff/Products/List" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    <form method="post" class="needs-validation" novalidate>
+        @Html.AntiForgeryToken()
+        @await Html.PartialAsync("_Alerts")
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <!-- THÔNG TIN CƠ BẢN -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-info-circle me-2"></i> Thông tin cơ bản
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="Product.ProductName" class="form-label fw-semibold">Tên sản phẩm *</label>
+                        <input asp-for="Product.ProductName" class="form-control" placeholder="Nhập tên sản phẩm" />
+                        <span asp-validation-for="Product.ProductName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Product.Price" class="form-label fw-semibold">Giá *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₫</span>
+                            <input asp-for="Product.Price" type="number" step="0.01" class="form-control" placeholder="0.00" />
+                        </div>
+                        <span asp-validation-for="Product.Price" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Product.StockQuantity" class="form-label fw-semibold">Số lượng *</label>
+                        <input asp-for="Product.StockQuantity" type="number" class="form-control" placeholder="0" />
+                        <span asp-validation-for="Product.StockQuantity" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Product.CategoryId" class="form-label fw-semibold">Danh mục *</label>
+                        <select asp-for="Product.CategoryId" class="form-select" asp-items="Model.CategoryOptions">
+                            <option value="">-- Chọn danh mục --</option>
+                        </select>
+                        <span asp-validation-for="Product.CategoryId" class="text-danger small"></span>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Product.Description" class="form-label fw-semibold">Mô tả</label>
+                        <textarea asp-for="Product.Description" class="form-control" rows="4" placeholder="Nhập mô tả chi tiết về sản phẩm"></textarea>
+                        <span asp-validation-for="Product.Description" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- THÔNG TIN CHI TIẾT SẢN PHẨM -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                <div><i class="fas fa-list me-2"></i> Thông tin chi tiết sản phẩm</div>
+                <button type="button" id="add-detail" class="btn btn-light btn-sm text-secondary border">
+                    <i class="fas fa-plus-circle me-1"></i> Thêm biến thể
+                </button>
+            </div>
+            <div class="card-body" id="product-details-container">
+                @for (int i = 0; i < Model.ProductDetails.Count; i++)
+                {
+                    <div class="border rounded-3 p-3 mb-3 bg-light-subtle product-detail-item position-relative" data-detail-index="@i">
+                        <input type="hidden" name="ProductDetails.Index" value="@i" />
+                        <button type="button" class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2 btn-remove-detail">
+                            <i class="fas fa-times"></i>
+                        </button>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <input asp-for="ProductDetails[@i].Color" class="form-control" placeholder="Màu sắc" />
+                                <span asp-validation-for="ProductDetails[@i].Color" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <input asp-for="ProductDetails[@i].Size" class="form-control" placeholder="Kích thước" />
+                                <span asp-validation-for="ProductDetails[@i].Size" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <input asp-for="ProductDetails[@i].Material" class="form-control" placeholder="Chất liệu" />
+                                <span asp-validation-for="ProductDetails[@i].Material" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <input asp-for="ProductDetails[@i].Origin" class="form-control" placeholder="Xuất xứ" />
+                                <span asp-validation-for="ProductDetails[@i].Origin" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <input asp-for="ProductDetails[@i].ImageUrl" class="form-control" placeholder="URL hình ảnh" />
+                                <span asp-validation-for="ProductDetails[@i].ImageUrl" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text">₫</span>
+                                    <input asp-for="ProductDetails[@i].AdditionalPrice" type="number" step="0.01" class="form-control" placeholder="Giá phụ thêm" />
+                                </div>
+                                <span asp-validation-for="ProductDetails[@i].AdditionalPrice" class="text-danger small"></span>
+                            </div>
+                            <div class="col-12">
+                                <textarea asp-for="ProductDetails[@i].Description" class="form-control" rows="2" placeholder="Mô tả chi tiết"></textarea>
+                                <span asp-validation-for="ProductDetails[@i].Description" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-save me-1"></i> Lưu sản phẩm
+            </button>
+            <a href="/Staff/Products/List" class="btn btn-outline-secondary px-4">
+                <i class="fas fa-arrow-left me-1"></i> Hủy
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const container = document.getElementById('product-details-container');
+        const addBtn = document.getElementById('add-detail');
+
+        const getNextDetailIndex = () => {
+            const indexInputs = Array.from(container.querySelectorAll('input[name="ProductDetails.Index"]'))
+                .map(input => parseInt(input.value, 10))
+                .filter(Number.isFinite);
+            if (indexInputs.length === 0) {
+                return 0;
+            }
+            return Math.max(...indexInputs) + 1;
+        };
+
+        let nextDetailIndex = getNextDetailIndex();
+
+        const buildDetailTemplate = (index) => `
+            <div class="border rounded-3 p-3 mb-3 bg-light-subtle product-detail-item position-relative" data-detail-index="${index}">
+                <input type="hidden" name="ProductDetails.Index" value="${index}" />
+                <button type="button" class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2 btn-remove-detail">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <input name="ProductDetails[${index}].Color" class="form-control" placeholder="Màu sắc" />
+                    </div>
+                    <div class="col-md-6">
+                        <input name="ProductDetails[${index}].Size" class="form-control" placeholder="Kích thước" />
+                    </div>
+                    <div class="col-md-6">
+                        <input name="ProductDetails[${index}].Material" class="form-control" placeholder="Chất liệu" />
+                    </div>
+                    <div class="col-md-6">
+                        <input name="ProductDetails[${index}].Origin" class="form-control" placeholder="Xuất xứ" />
+                    </div>
+                    <div class="col-md-6">
+                        <input name="ProductDetails[${index}].ImageUrl" class="form-control" placeholder="URL hình ảnh" />
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text">₫</span>
+                            <input name="ProductDetails[${index}].AdditionalPrice" class="form-control" placeholder="Giá phụ thêm" type="number" step="0.01" />
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <textarea name="ProductDetails[${index}].Description" class="form-control" rows="2" placeholder="Mô tả chi tiết"></textarea>
+                    </div>
+                </div>
+            </div>`;
+
+        addBtn.addEventListener('click', () => {
+            const template = buildDetailTemplate(nextDetailIndex++);
+            container.insertAdjacentHTML('beforeend', template);
+        });
+
+        container.addEventListener('click', (e) => {
+            if (e.target.closest('.btn-remove-detail')) {
+                e.target.closest('.product-detail-item').remove();
+            }
+        });
+    </script>
+}

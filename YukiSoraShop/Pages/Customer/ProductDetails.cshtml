@@ -1,0 +1,185 @@
+﻿@page "{id:int}"
+@model YukiSoraShop.Pages.Customer.ProductDetailsModel
+@{
+    ViewData["Title"] = Model.Product?.Name ?? "Chi tiết sản phẩm";
+    var isAdminOrStaff = User.IsInRole("Administrator") || User.IsInRole("Moderator");
+}
+
+<div class="container my-5">
+    @if (isAdminOrStaff)
+    {
+        <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Lưu ý:</strong> Tài khoản quản trị/nhân viên không thể thêm sản phẩm vào giỏ hàng.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-5 align-items-start">
+        <!-- Ảnh sản phẩm -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow p-3 rounded-4">
+                <img src="@Model.Product.ImageUrl" alt="@Model.Product.Name"
+                     class="img-fluid rounded-4 main-product-image" style="object-fit: cover; height: 480px;">
+            </div>
+
+            @if (Model.Product.ProductDetails.Any())
+            {
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    @foreach (var detail in Model.Product.ProductDetails.Take(6))
+                    {
+                        <img src="@detail.ImageUrl" class="rounded-3 border thumb-image"
+                             style="width: 86px; height: 86px; object-fit: cover; cursor: pointer;"
+                             onclick="selectVariant('@detail.Id', '@detail.ImageUrl', '@detail.AdditionalPrice')" />
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Thông tin sản phẩm -->
+        <div class="col-lg-6">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                    <span class="badge bg-primary-subtle text-primary border mb-2">@Model.Product.Category</span>
+                    <h2 class="fw-bold mb-1">@Model.Product.Name</h2>
+                    <div class="text-muted small">Mã sản phẩm: #@Model.Product.Id</div>
+                </div>
+                @if (Model.Product.Stock > 0)
+                {
+                    <span class="badge bg-success align-self-start"><i class="fas fa-check-circle me-1"></i> Còn hàng</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger align-self-start"><i class="fas fa-times-circle me-1"></i> Hết hàng</span>
+                }
+            </div>
+
+            <h3 id="product-price" class="text-danger fw-bold my-3">
+                @Model.Product.Price.ToString("N0") VNĐ
+            </h3>
+
+            <p class="text-secondary">@Model.Product.Description</p>
+
+            @if (Model.Product.ProductDetails.Any())
+            {
+                <div class="mb-4">
+                    <label class="fw-semibold">Chọn biến thể:</label>
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        @foreach (var detail in Model.Product.ProductDetails)
+                        {
+                            <button type="button" class="btn btn-outline-primary btn-sm variant-btn"
+                                    data-id="@detail.Id"
+                                    data-extra="@detail.AdditionalPrice"
+                                    onclick="selectVariant('@detail.Id', '@detail.ImageUrl', '@detail.AdditionalPrice')">
+                                @detail.Color @if(!string.IsNullOrWhiteSpace(detail.Size)){<span>(@detail.Size)</span>}
+                            </button>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 bg-light border h-100">
+                        <div class="fw-semibold text-dark mb-1"><i class="fas fa-microchip me-2 text-primary"></i>Hiệu năng</div>
+                        <div class="small text-muted">Tối ưu cho công việc, học tập và giải trí.</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 bg-light border h-100">
+                        <div class="fw-semibold text-dark mb-1"><i class="fas fa-shield-alt me-2 text-success"></i>Bảo hành</div>
+                        <div class="small text-muted">Chính hãng 12-36 tháng (tùy sản phẩm).</div>
+                    </div>
+                </div>
+            </div>
+
+            @if (isAdminOrStaff)
+            {
+                <button type="button" class="btn btn-lg btn-secondary w-100" disabled title="Tài khoản quản trị/nhân viên không thể mua hàng">
+                    <i class="fas fa-ban me-2"></i>Không thể thêm vào giỏ hàng
+                </button>
+            }
+            else
+            {
+                <form method="post" asp-page-handler="AddToCart" class="mt-2">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Product.Id" />
+                    <input type="hidden" id="selectedDetailId" name="productDetailId" value="0" />
+
+                    <div class="d-grid gap-2 d-sm-flex">
+                        <button type="submit" id="addToCartBtn" class="btn btn-gradient btn-lg px-4" disabled>
+                            <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ hàng
+                        </button>
+                        <a class="btn btn-outline-primary btn-lg px-4" href="/Customer/Catalog">
+                            <i class="fas fa-arrow-left me-2"></i>Tiếp tục xem sản phẩm
+                        </a>
+                    </div>
+                </form>
+            }
+
+            <div class="mt-4">
+                <h5 class="fw-semibold mb-2">Thông số cơ bản</h5>
+                <dl class="row small mb-0">
+                    <dt class="col-sm-4">Danh mục:</dt>
+                    <dd class="col-sm-8">@Model.Product.Category</dd>
+                    <dt class="col-sm-4">Kho hàng:</dt>
+                    <dd class="col-sm-8">@Model.Product.Stock</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5" />
+
+    <!-- Mô tả chi tiết / thông số -->
+    <section>
+        <h4 class="fw-semibold mb-3">Mô tả chi tiết</h4>
+        <p>@(Model.Product.ProductDetails.FirstOrDefault()?.Description ?? Model.Product.Description)</p>
+    </section>
+</div>
+
+@section Scripts {
+<script>
+    const addToCartBtn = document.getElementById('addToCartBtn');
+    const selectedDetailInput = document.getElementById('selectedDetailId');
+    const variantBtns = document.querySelectorAll('.variant-btn');
+    const priceEl = document.getElementById('product-price');
+    const basePrice = parseFloat("@Model.Product.Price");
+    const hasVariants = @(Model.Product.ProductDetails.Any() ? "true" : "false");
+
+    // If no variants, enable button immediately
+    if (!hasVariants && addToCartBtn) {
+        addToCartBtn.disabled = false;
+    }
+
+    function selectVariant(id, imgUrl, extraPrice) {
+        if (!addToCartBtn) return;
+        selectedDetailInput.value = id;
+        addToCartBtn.disabled = false;
+
+        variantBtns.forEach(btn => btn.classList.remove('active'));
+        const btn = document.querySelector(`.variant-btn[data-id='${id}']`);
+        if (btn) btn.classList.add('active');
+
+        // cập nhật ảnh chính
+        const mainImg = document.querySelector(".main-product-image");
+        if (mainImg) mainImg.src = imgUrl;
+
+        // cập nhật giá
+        const newPrice = basePrice + parseFloat(extraPrice || 0);
+        if (priceEl) priceEl.innerText = newPrice.toLocaleString('vi-VN') + " VNĐ";
+    }
+</script>
+}
+
+<style>
+    .btn-gradient {
+        background: linear-gradient(135deg, #0d47a1, #1976d2);
+        border: none;
+        color: #fff;
+        transition: all .2s ease;
+    }
+    .btn-gradient:hover { filter: brightness(1.05); color: #fff; }
+    .thumb-image { transition: transform .2s ease; }
+    .thumb-image:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,.15); }
+</style>

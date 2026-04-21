@@ -1,0 +1,106 @@
+@page
+@model YukiSoraShop.Pages.Orders.OrdersCashConfirmationModel
+@{
+    ViewData["Title"] = "Xác nhận thanh toán tiền mặt";
+}
+
+<div class="row">
+    <div class="col-12 col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-money-check-alt text-success"></i> Xác nhận thanh toán tiền mặt</h5>
+                <span class="badge bg-secondary">Đơn hàng #@Model.Order?.OrderId</span>
+            </div>
+            <div class="card-body">
+                @await Html.PartialAsync("_Alerts")
+
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    Chúng tôi đã ghi nhận yêu cầu thanh toán tiền mặt cho đơn hàng của bạn. Vui lòng thanh toán khi nhận hàng hoặc tại điểm giao dịch.
+                </div>
+
+                <dl class="row">
+                    <dt class="col-sm-4">Ngày tạo</dt>
+                    <dd class="col-sm-8">@Model.Order?.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd>
+
+                    <dt class="col-sm-4">Trạng thái đơn hàng</dt>
+                    <dd class="col-sm-8"><span class="@Model.Order?.StatusBadgeClass">@Model.Order?.StatusDisplay</span></dd>
+
+                    <dt class="col-sm-4">Trạng thái thanh toán</dt>
+                    <dd class="col-sm-8"><span class="@Model.Order?.PaymentStatusBadgeClass">@Model.Order?.PaymentStatusDisplay</span></dd>
+
+                    <dt class="col-sm-4">Phương thức thanh toán</dt>
+                    <dd class="col-sm-8">@Model.Order?.PaymentMethodName</dd>
+                </dl>
+
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th class="text-center">Số lượng</th>
+                                <th class="text-end">Đơn giá (VND)</th>
+                                <th class="text-end">Thành tiền (VND)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var item in Model.Order?.Items ?? System.Linq.Enumerable.Empty<YukiSoraShop.Pages.Orders.OrdersCashConfirmationModel.OrderItemVm>())
+                        {
+                            <tr>
+                                <td>@item.ProductName</td>
+                                <td class="text-center">@item.Quantity</td>
+                                <td class="text-end">@item.UnitPrice.ToString("N0")</td>
+                                <td class="text-end">@item.LineTotal.ToString("N0")</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Tạm tính</span>
+                        <strong>@Model.Order?.Subtotal.ToString("N0") VND</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Phí vận chuyển</span>
+                        <strong>@Model.Order?.ShippingFee.ToString("N0") VND</strong>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between h5">
+                        <span>Tổng thanh toán</span>
+                        <span class="text-primary">@Model.Order?.GrandTotal.ToString("N0") VND</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-info-circle"></i> Bước tiếp theo</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled small mb-3">
+                    <li class="mb-2"><i class="fas fa-check text-success"></i> Nhân viên sẽ liên hệ xác nhận đơn hàng.
+                    </li>
+                    <li class="mb-2"><i class="fas fa-check text-success"></i> Chuẩn bị tiền mặt khi nhận hàng.</li>
+                    <li class="mb-2"><i class="fas fa-check text-success"></i> Bạn có thể đổi sang thanh toán online bất kỳ lúc nào từ trang phương thức thanh toán.</li>
+                </ul>
+
+                <div class="d-flex flex-column gap-2">
+                    <a class="btn btn-primary" asp-page="/Customer/MyOrders">
+                        <i class="fas fa-list"></i> Quản lý đơn hàng
+                    </a>
+                    <a class="btn btn-outline-secondary" asp-page="/Orders/PaymentMethod" asp-route-orderId="@Model.Order?.OrderId">
+                        <i class="fas fa-credit-card"></i> Đổi phương thức thanh toán
+                    </a>
+                    <a class="btn btn-outline-primary" asp-page="/Customer/Catalog">
+                        <i class="fas fa-store"></i> Tiếp tục mua sắm
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

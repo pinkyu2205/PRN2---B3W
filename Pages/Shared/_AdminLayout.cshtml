@@ -1,0 +1,84 @@
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var userName = User?.Identity?.Name ?? "";
+    var title = ViewData["Title"] ?? "Admin";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@title - Admin</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" asp-page="/Admin/Dashboard">
+                <i class="fas fa-bolt me-2 text-warning"></i>
+                YukiSora Shop <small class="text-white-50">Admin</small>
+            </a>
+
+            <div class="d-flex align-items-center">
+                <span class="text-white me-3"><i class="fas fa-user-shield me-2"></i>@userName</span>
+                <form asp-page="/Auth/Logout" method="post" class="m-0">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <aside class="col-md-2 col-lg-2 bg-white border-end vh-100 p-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-1">
+                        <a class="nav-link fw-semibold" asp-page="/Admin/Dashboard">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item mb-1">
+                        <a class="nav-link" asp-page="/Admin/AccountManagement">
+                            <i class="fas fa-users-cog me-2"></i>Accounts
+                        </a>
+                    </li>
+                    <li class="nav-item mb-1">
+                        <a class="nav-link" asp-page="/Admin/PaymentMethods">
+                            <i class="fas fa-credit-card me-2"></i>Payment Methods
+                        </a>
+                    </li>
+                    <li class="nav-item mb-1">
+                        <a class="nav-link" asp-page="/Admin/PaymentManagement">
+                            <i class="fas fa-money-check-alt me-2"></i>Payment Management
+                        </a>
+                    </li>
+                    <li class="nav-item mb-1">
+                        <a class="nav-link" asp-page="/Admin/CashPayments">
+                            <i class="fas fa-hand-holding-usd me-2"></i>Cash Payments
+                        </a>
+                    </li>
+                    <li class="nav-item mt-3">
+                        <a class="nav-link text-muted small" href="/">
+                            <i class="fas fa-home me-2"></i>Go to storefront
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+
+            <main class="col-md-10 col-lg-10 p-4">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

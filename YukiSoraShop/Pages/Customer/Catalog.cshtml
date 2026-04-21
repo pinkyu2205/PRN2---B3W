@@ -1,0 +1,328 @@
+﻿@page
+@model YukiSoraShop.Pages.Customer.CustomerCatalogModel
+@{
+    ViewData["Title"] = "Sản phẩm - YukiSoraShop";
+    var isAdminOrStaff = User.IsInRole("Administrator") || User.IsInRole("Moderator");
+}
+
+<style>
+    :root {
+        --primary-1: #0d47a1;
+        --primary-2: #1976d2;
+        --primary-3: #42a5f5;
+        --accent-1: #764ba2;
+        --accent-2: #667eea;
+        --muted: #6b7280;
+        --bg-soft: #f5f7fb;
+    }
+
+    .gradient-text {
+        background: linear-gradient(135deg, var(--primary-1), var(--primary-2));
+        -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    /* Layout */
+    .catalog-wrapper { padding-top: 8px; }
+    .sidebar-card {
+        background: #fff;
+        border: none; border-radius: 16px; box-shadow: 0 8px 24px rgba(13,71,161,.08);
+        position: sticky; top: 88px;
+    }
+    .sidebar-card .form-label { font-weight: 600; color: #1f2937; }
+    .sidebar-card .form-control, .sidebar-card .form-select { border-radius: 10px; }
+
+    /* Top bar */
+    .topbar { background: #fff; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+
+    /* Hot strip */
+    .hot-strip { background: linear-gradient(135deg, #eef5ff, #f5f7fb); border-radius: 16px; padding: 18px; }
+    .hot-scroll { display: grid; grid-auto-flow: column; gap: 14px; overflow-x: auto; scrollbar-width: thin; }
+    .hot-card { min-width: 240px; border: none; border-radius: 14px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,.06); transition: .25s; }
+    .hot-card:hover { transform: translateY(-4px); }
+    .hot-img { height: 120px; object-fit: cover; }
+
+    /* Product */
+    .product-card { border: none; border-radius: 16px; overflow: hidden; transition: .25s; height: 100%; box-shadow: 0 8px 20px rgba(0,0,0,.06); }
+    .product-card:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,0,0,.12); }
+    .product-img { height: 220px; object-fit: cover; }
+    .category-badge { background: linear-gradient(135deg, #f093fb, #f5576c); color:#fff; border: none; padding: 4px 10px; border-radius: 999px; font-size: .75rem; }
+    .price { font-weight: 800; font-size: 1.15rem; color: var(--primary-1); }
+    .stock-badge { position: absolute; top: 12px; right: 12px; }
+    .hot-badge { position: absolute; top: 12px; left: 12px; background: linear-gradient(135deg, #FF6B6B, #FF8E53); color:#fff; border-radius: 999px; padding: 4px 10px; font-weight: 700; font-size: .75rem; }
+
+    /* Buttons */
+    .btn-gradient { background: linear-gradient(135deg, var(--primary-1), var(--primary-2)); color:#fff; border:none; }
+    .btn-gradient:hover { filter: brightness(1.05); color:#fff; }
+
+    /* Pagination */
+    .pagination .page-link { border-radius: 10px; margin: 0 4px; }
+    .pagination .page-item.active .page-link { background: linear-gradient(135deg, var(--primary-1), var(--primary-2)); border-color: transparent; }
+
+    /* Small helpers */
+    .muted { color: var(--muted); }
+</style>
+
+<!-- Alert Messages -->
+@await Html.PartialAsync("_Alerts")
+
+@if (isAdminOrStaff)
+{
+    <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Lưu ý:</strong> Tài khoản quản trị/nhân viên không thể thêm sản phẩm vào giỏ hàng.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="catalog-wrapper container mb-4">
+    <div class="row g-4">
+        <!-- Sidebar Filters -->
+        <div class="col-lg-3">
+            <div class="card sidebar-card p-3">
+                <h5 class="fw-bold mb-3 gradient-text"><i class="fas fa-sliders-h me-2"></i>Bộ lọc</h5>
+                <form method="get" class="vstack gap-3">
+                    <div>
+                        <label class="form-label"><i class="fas fa-search me-1"></i>Tìm kiếm</label>
+                        <input class="form-control" type="text" name="search" value="@Model.Search" placeholder="Tên sản phẩm..." />
+                    </div>
+                    <div>
+                        <label class="form-label"><i class="fas fa-tags me-1"></i>Danh mục</label>
+                        <select class="form-select" name="category" asp-items="Model.CategoryOptions">
+                            <option value="">Tất cả</option>
+                        </select>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label">Giá từ</label>
+                            <input class="form-control" type="number" name="minPrice" value="@Model.MinPrice" placeholder="0" min="0" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Giá đến</label>
+                            <input class="form-control" type="number" name="maxPrice" value="@Model.MaxPrice" placeholder="999999999" min="0" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Sắp xếp</label>
+                        <select class="form-select" name="sort">
+                            <option value="" selected="@(string.IsNullOrEmpty(Model.Sort))">Mới nhất</option>
+                            <option value="price_asc" selected="@(Model.Sort == "price_asc")">Giá tăng dần</option>
+                            <option value="price_desc" selected="@(Model.Sort == "price_desc")">Giá giảm dần</option>
+                            <option value="name_asc" selected="@(Model.Sort == "name_asc")">Tên A-Z</option>
+                            <option value="name_desc" selected="@(Model.Sort == "name_desc")">Tên Z-A</option>
+                        </select>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-gradient" type="submit"><i class="fas fa-filter me-2"></i>Lọc</button>
+                        <a class="btn btn-outline-secondary" href="/Customer/Catalog?size=@Model.Size">Đặt lại</a>
+                    </div>
+                    <input type="hidden" name="size" value="@Model.Size" />
+                    <input type="hidden" name="page" value="1" />
+                </form>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <!-- Top bar -->
+            <div class="topbar p-3 mb-3 d-flex flex-wrap justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <h4 class="fw-bold mb-0"><span class="gradient-text">Sản phẩm</span></h4>
+                    <span class="badge bg-primary-subtle text-primary border">@Model.TotalItems</span>
+                </div>
+                <form method="get" class="d-flex gap-2 align-items-center">
+                    <input type="hidden" name="search" value="@Model.Search" />
+                    <input type="hidden" name="category" value="@Model.Category" />
+                    <input type="hidden" name="minPrice" value="@Model.MinPrice" />
+                    <input type="hidden" name="maxPrice" value="@Model.MaxPrice" />
+                    <input type="hidden" name="page" value="1" />
+                    <select class="form-select form-select-sm" name="sort" style="min-width: 180px;">
+                        <option value="" selected="@(string.IsNullOrEmpty(Model.Sort))">Mới nhất</option>
+                        <option value="price_asc" selected="@(Model.Sort == "price_asc")">Giá tăng dần</option>
+                        <option value="price_desc" selected="@(Model.Sort == "price_desc")">Giá giảm dần</option>
+                        <option value="name_asc" selected="@(Model.Sort == "name_asc")">Tên A-Z</option>
+                        <option value="name_desc" selected="@(Model.Sort == "name_desc")">Tên Z-A</option>
+                    </select>
+                    <select class="form-select form-select-sm" name="size" style="width: 100px;">
+                        <option value="12" selected="@(Model.Size == 12)">12</option>
+                        <option value="24" selected="@(Model.Size == 24)">24</option>
+                        <option value="48" selected="@(Model.Size == 48)">48</option>
+                    </select>
+                    <button class="btn btn-outline-primary btn-sm" type="submit">Áp dụng</button>
+                </form>
+            </div>
+
+            <!-- Hot products horizontal strip -->
+            @if (Model.HotProducts.Any())
+            {
+                <div class="hot-strip mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="fw-semibold muted"><i class="fas fa-fire text-danger me-2"></i>Đang thịnh hành</div>
+                        <small class="muted">Gợi ý dành cho bạn</small>
+                    </div>
+                    <div class="hot-scroll">
+                        @foreach (var hot in Model.HotProducts)
+                        {
+                            <div class="card hot-card" onclick="window.location='/Customer/ProductDetails/@hot.Id'">
+                                <img src="@hot.ImageUrl" class="hot-img" alt="@hot.Name">
+                                <div class="card-body p-2">
+                                    <div class="text-truncate fw-semibold">@hot.Name</div>
+                                    <div class="price">@hot.Price.ToString("N0") ₫</div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Products grid -->
+            @if (Model.Products.Any())
+            {
+                <div class="row g-4 mb-4">
+                    @foreach (var product in Model.Products)
+                    {
+                        <div class="col-12 col-sm-6 col-md-4 col-xl-3">
+                            <div class="card product-card">
+                                <div class="position-relative">
+                                    @if (product.Stock > 50)
+                                    { <span class="hot-badge"><i class="fas fa-fire me-1"></i>HOT</span> }
+                                    <span class="badge stock-badge @(product.Stock>0?"bg-success":"bg-danger")">
+                                        <i class="fas @(product.Stock>0?"fa-check-circle":"fa-times-circle") me-1"></i>@(product.Stock>0?"Còn hàng":"Hết hàng")
+                                    </span>
+                                    <img src="@product.ImageUrl" class="card-img-top product-img" alt="@product.Name">
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <span class="category-badge mb-2">@product.Category</span>
+                                    <h6 class="fw-bold mb-1 text-truncate" title="@product.Name">@product.Name</h6>
+                                    <p class="text-muted small flex-grow-1" style="min-height: 38px;">
+                                        @(string.IsNullOrWhiteSpace(product.Description) ? "" : (product.Description.Length > 60 ? product.Description.Substring(0, 60) + "..." : product.Description))
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center mt-auto">
+                                        <div class="price">@product.Price.ToString("N0") ₫</div>
+                                    </div>
+                                    <div class="d-grid gap-2 mt-2">
+                                        @if (isAdminOrStaff)
+                                        {
+                                            <button type="button" class="btn btn-secondary btn-sm" disabled title="Tài khoản quản trị/nhân viên không thể mua hàng">
+                                                <i class="fas fa-ban me-1"></i>Không thể mua
+                                            </button>
+                                        }
+                                        else if (product.ProductDetails != null && product.ProductDetails.Any())
+                                        {
+                                            <a asp-page="/Customer/ProductDetails" asp-route-id="@product.Id" class="btn btn-gradient btn-sm">
+                                                <i class="fas fa-eye me-1"></i>Chọn biến thể
+                                            </a>
+                                        }
+                                        else if (product.Stock > 0)
+                                        {
+                                            <form method="post" asp-page-handler="AddToCart" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@product.Id" />
+                                                <button type="submit" class="btn btn-gradient btn-sm w-100">
+                                                    <i class="fas fa-cart-plus me-1"></i>Thêm vào giỏ
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-secondary btn-sm" disabled>
+                                                <i class="fas fa-times-circle me-1"></i>Hết hàng
+                                            </button>
+                                        }
+                                        <a asp-page="/Customer/ProductDetails" asp-route-id="@product.Id" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-info-circle me-1"></i>Chi tiết
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Pagination -->
+                @if (Model.TotalPages > 1)
+                {
+                    <nav aria-label="Product pagination" class="mt-2">
+                        <ul class="pagination justify-content-center flex-wrap">
+                            <li class="page-item @(Model.Page == 1 ? "disabled" : null)">
+                                <a class="page-link" href="?page=1&size=@Model.Size&search=@Model.Search&category=@Model.Category&minPrice=@Model.MinPrice&maxPrice=@Model.MaxPrice&sort=@Model.Sort">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item @(Model.Page == 1 ? "disabled" : null)">
+                                <a class="page-link" href="?page=@(Model.Page-1)&size=@Model.Size&search=@Model.Search&category=@Model.Category&minPrice=@Model.MinPrice&maxPrice=@Model.MaxPrice&sort=@Model.Sort">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+
+                            @{
+                                var start = Math.Max(1, Model.Page - 2);
+                                var end = Math.Min(Model.TotalPages, Model.Page + 2);
+                                if (start > 1)
+                                {
+                                    <li class="page-item"><a class="page-link" href="?page=1&size=@Model.Size&search=@Model.Search&category=@Model.Category&minPrice=@Model.MinPrice&maxPrice=@Model.MaxPrice&sort=@Model.Sort">1</a></li>
+                                    if (start > 2) { <li class="page-item disabled"><span class="page-link">...</span></li>; }
+                                }
+                                for (var i = start; i <= end; i++)
+                                {
+                                    <li class="page-item @(i==Model.Page?"active":null)">
+                                        <a class="page-link" href="?page=@i&size=@Model.Size&search=@Model.Search&category=@Model.Category&minPrice=@Model.MinPrice&maxPrice=@Model.MaxPrice&sort=@Model.Sort">@i</a>
+                                    </li>
+                                }
+                                if (end < Model.TotalPages)
+                                {
+                                    if (end < Model.TotalPages - 1) { <li class="page-item disabled"><span class="page-link">...</span></li>; }
+                                    <li class="page-item"><a class="page-link" href="?page=@Model.TotalPages&size=@Model.Size&search=@Model.Search&category=@Model.Category&minPrice=@Model.MinPrice&maxPrice=@Model.MaxPrice&sort=@Model.Sort">@Model.TotalPages</a></li>
+                                }
+                            }
+
+                            <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : null)">
+                                <a class="page-link" href="?page=@(Model.Page+1)&size=@Model.Size&search=@Model.Search&category=@Model.Category&minPrice=@Model.MinPrice&maxPrice=@Model.MaxPrice&sort=@Model.Sort">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : null)">
+                                <a class="page-link" href="?page=@Model.TotalPages&size=@Model.Size&search=@Model.Search&category=@Model.Category&minPrice=@Model.MinPrice&maxPrice=@Model.MaxPrice&sort=@Model.Sort">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="text-center muted small mt-2">Trang @Model.Page / @Model.TotalPages</p>
+                    </nav>
+                }
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-box-open fa-5x text-muted mb-4"></i>
+                    <h3 class="fw-bold text-dark">Không tìm thấy sản phẩm</h3>
+                    <p class="muted mb-4">Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác</p>
+                    <a href="/Customer/Catalog" class="btn btn-gradient btn-lg">
+                        <i class="fas fa-redo me-2"></i>Xem tất cả sản phẩm
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Enable smooth reveal
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.product-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(14px)';
+            card.style.transition = 'all .45s ease';
+            observer.observe(card);
+        });
+    </script>
+}
+

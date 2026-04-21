@@ -1,0 +1,163 @@
+@inject Application.Services.Interfaces.ICartService CartService
+@using System.Security.Claims
+
+@{
+    var isAuthenticated = User?.Identity?.IsAuthenticated == true;
+    var userName = User?.Identity?.Name ?? "";
+    var isAdmin = User?.IsInRole("Administrator") == true;
+    var isStaff = User?.IsInRole("Moderator") == true;
+
+    // Get cart count for authenticated customers
+    var cartCount = 0;
+    if (isAuthenticated && !isAdmin && !isStaff)
+    {
+        var accountIdStr = User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (int.TryParse(accountIdStr, out var accountId) && accountId > 0)
+        {
+            try
+            {
+                var items = await CartService.GetItemsAsync(accountId);
+                cartCount = items?.Sum(i => i.Quantity) ?? 0;
+            }
+            catch
+            {
+                cartCount = 0;
+            }
+        }
+    }
+}
+
+<!-- LEFT NAVIGATION -->
+<ul class="navbar-nav me-auto">
+    <li class="nav-item">
+        <a class="nav-link fw-semibold text-primary" asp-page="/Home">
+            <i class="fas fa-home me-1"></i> Trang chủ
+        </a>
+    </li>
+
+    @if (isAuthenticated)
+    {
+        if (isAdmin)
+        {
+            <!-- ADMIN MENU -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-cogs me-1"></i> Quản trị hệ thống
+                </a>
+                <ul class="dropdown-menu shadow-sm">
+                    <li><a class="dropdown-item" asp-page="/Admin/Dashboard"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a></li>
+                    <li><a class="dropdown-item" asp-page="/Admin/AccountManagement"><i class="fas fa-users-cog me-2"></i> Quản lý tài khoản</a></li>
+                    <li><a class="dropdown-item" asp-page="/Admin/PaymentMethods"><i class="fas fa-credit-card me-2"></i> Phương thức thanh toán</a></li>
+                    <li><a class="dropdown-item" asp-page="/Admin/CashPayments"><i class="fas fa-hand-holding-usd me-2"></i> Thanh toán tiền mặt</a></li>
+                </ul>
+            </li>
+        }
+        else if (isStaff)
+        {
+            <!-- STAFF MENU -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-box me-1"></i> Quản lý sản phẩm
+                </a>
+                <ul class="dropdown-menu shadow-sm">
+                    <li><a class="dropdown-item" asp-page="/Staff/Products/List"><i class="fas fa-list me-2"></i> Danh sách sản phẩm</a></li>
+                    <li><a class="dropdown-item" asp-page="/Staff/Products/Create"><i class="fas fa-plus me-2"></i> Thêm sản phẩm</a></li>
+                    <li><a class="dropdown-item" asp-page="/Staff/Categories/List"><i class="fas fa-tags me-2"></i> Danh mục</a></li>
+                </ul>
+            </li>
+        }
+        else
+        {
+            <!-- CUSTOMER MENU -->
+            <li class="nav-item">
+                <a class="nav-link fw-semibold" asp-page="/Customer/Catalog">
+                    <i class="fas fa-laptop me-1"></i> Sản phẩm
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-semibold" asp-page="/Customer/About">
+                    <i class="fas fa-info-circle me-1"></i> Giới thiệu
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-semibold" asp-page="/Customer/Contact">
+                    <i class="fas fa-headset me-1"></i> Liên hệ
+                </a>
+            </li>
+        }
+    }
+    else
+    {
+        <!-- Guest menu -->
+        <li class="nav-item">
+            <a class="nav-link fw-semibold" asp-page="/Customer/Catalog"><i class="fas fa-store me-1"></i> Sản phẩm</a>
+        </li>
+    }
+</ul>
+
+<!-- RIGHT NAVIGATION -->
+<ul class="navbar-nav align-items-center">
+
+    @if (!isAuthenticated)
+    {
+        <li class="nav-item">
+            <a class="nav-link fw-semibold" asp-page="/Auth/Login"><i class="fas fa-sign-in-alt me-1"></i> Đăng nhập</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link fw-semibold" asp-page="/Auth/Register"><i class="fas fa-user-plus me-1"></i> Đăng ký</a>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown">
+                <i class="fas fa-user-circle me-1"></i> @userName
+                @if (isAdmin)
+                {
+                    <span class="badge bg-danger ms-1">Admin</span>
+                }
+                else if (isStaff)
+                {
+                    <span class="badge bg-warning ms-1">Staff</span>
+                }
+                else
+                {
+                    <span class="badge bg-success ms-1">User</span>
+                }
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                @if (!isAdmin && !isStaff)
+                {
+                    <li><a class="dropdown-item" asp-page="/Customer/Profile"><i class="fas fa-user me-2"></i> Hồ sơ cá nhân</a></li>
+                    <li><a class="dropdown-item" asp-page="/Customer/MyOrders"><i class="fas fa-receipt me-2"></i> Đơn hàng của tôi</a></li>
+                    <li><hr class="dropdown-divider" /></li>
+                }
+                <li>
+                    <form asp-page="/Auth/Logout" method="post" class="px-3 py-1">
+                        <button type="submit" class="dropdown-item text-danger">
+                            <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </li>
+
+        <!-- Only show Cart for normal users -->
+        @if (!isAdmin && !isStaff)
+        {
+            <li class="nav-item ms-2">
+                <a class="nav-link fw-semibold position-relative" asp-page="/Customer/Cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    @if (cartCount > 0)
+                    {
+                        <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill" id="cartCount">@cartCount</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary position-absolute top-0 start-100 translate-middle rounded-pill" id="cartCount">0</span>
+                    }
+                </a>
+            </li>
+        }
+    }
+</ul>

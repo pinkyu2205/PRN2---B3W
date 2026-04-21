@@ -1,0 +1,82 @@
+@page
+@model YukiSoraShop.Pages.Customer.EditProfileModel
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@{
+    ViewData["Title"] = "Chỉnh sửa hồ sơ";
+}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-user-edit text-primary"></i> Chỉnh sửa hồ sơ
+        </h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.FullName" class="form-label">Họ và tên</label>
+                        <input asp-for="Input.FullName" class="form-control" />
+                        <span asp-validation-for="Input.FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.PhoneNumber" class="form-label">Số điện thoại</label>
+                        <input asp-for="Input.PhoneNumber" class="form-control" />
+                        <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Address" class="form-label">Địa chỉ</label>
+                        <input asp-for="Input.Address" class="form-control" />
+                        <span asp-validation-for="Input.Address" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.DateOfBirth" class="form-label">Ngày sinh</label>
+                            <input asp-for="Input.DateOfBirth" class="form-control" type="date" />
+                            <span asp-validation-for="Input.DateOfBirth" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.Gender" class="form-label">Giới tính</label>
+                            <select asp-for="Input.Gender" class="form-select">
+                                <option value="">-- Chọn giới tính --</option>
+                                <option>Male</option>
+                                <option>Female</option>
+                                <option>Other</option>
+                            </select>
+                            <span asp-validation-for="Input.Gender" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.AvatarUrl" class="form-label">Ảnh đại diện (URL)</label>
+                        <input asp-for="Input.AvatarUrl" class="form-control" />
+                        <span asp-validation-for="Input.AvatarUrl" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Lưu thay đổi
+                        </button>
+                        <a href="/Customer/Profile" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

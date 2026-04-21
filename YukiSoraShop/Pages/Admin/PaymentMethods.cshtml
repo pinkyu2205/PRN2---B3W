@@ -1,0 +1,203 @@
+@page
+@model YukiSoraShop.Pages.Admin.PaymentMethodsModel
+@{
+    ViewData["Title"] = "Quản lý phương thức thanh toán";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">
+        <i class="fas fa-credit-card me-2 text-primary"></i> Quản lý phương thức thanh toán
+    </h2>
+    <a class="btn btn-outline-secondary" asp-page="/Admin/Dashboard">
+        <i class="fas fa-arrow-left"></i> Về Dashboard
+    </a>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @Html.Raw(Model.StatusMessage)
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@Model.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (Model.Methods.Count == 0)
+{
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>Chưa có phương thức thanh toán nào trong hệ thống.
+    </div>
+}
+else
+{
+    <!-- Info Card -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <div class="p-3">
+                        <i class="fas fa-list-ul fa-2x text-primary mb-2"></i>
+                        <h4 class="fw-bold mb-1">@Model.Methods.Count</h4>
+                        <p class="text-muted small mb-0">Tổng phương thức</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3">
+                        <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                        <h4 class="fw-bold mb-1">@Model.Methods.Count(m => m.IsActive)</h4>
+                        <p class="text-muted small mb-0">Đang kích hoạt</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3">
+                        <i class="fas fa-ban fa-2x text-secondary mb-2"></i>
+                        <h4 class="fw-bold mb-1">@Model.Methods.Count(m => !m.IsActive)</h4>
+                        <p class="text-muted small mb-0">Đang tắt</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 py-3">
+            <h5 class="mb-0 fw-semibold">
+                <i class="fas fa-table text-primary me-2"></i>Danh sách phương thức thanh toán
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 5%;">ID</th>
+                            <th style="width: 20%;">Tên phương thức</th>
+                            <th style="width: 30%;">Mô tả</th>
+                            <th style="width: 15%;" class="text-center">Trạng thái</th>
+                            <th style="width: 20%;">Cập nhật</th>
+                            <th style="width: 10%;" class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var method in Model.Methods)
+                        {
+                            var rowClass = method.IsActive ? "table-success-subtle" : "table-secondary-subtle";
+                            <tr class="@rowClass">
+                                <td class="fw-semibold text-muted">#@method.Id</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        @if (method.Name == "VNPay")
+                                        {
+                                            <i class="fas fa-credit-card text-primary fa-lg me-2"></i>
+                                        }
+                                        else if (method.Name == "Cash")
+                                        {
+                                            <i class="fas fa-money-bill-wave text-success fa-lg me-2"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-wallet text-info fa-lg me-2"></i>
+                                        }
+                                        <span class="fw-semibold">@method.Name</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        @(string.IsNullOrWhiteSpace(method.Description) ? "—" : method.Description)
+                                    </small>
+                                </td>
+                                <td class="text-center">
+                                    @if (method.IsActive)
+                                    {
+                                        <span class="badge bg-success px-3 py-2">
+                                            <i class="fas fa-check-circle me-1"></i>Đang kích hoạt
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary px-3 py-2">
+                                            <i class="fas fa-times-circle me-1"></i>Đang tắt
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    <small class="text-muted d-block">
+                                        @if (method.ModifiedAt.HasValue)
+                                        {
+                                            <i class="fas fa-clock me-1"></i>
+                                            <span>@method.ModifiedAt.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
+                                        }
+                                        else
+                                        {
+                                            <span>—</span>
+                                        }
+                                    </small>
+                                    @if (!string.IsNullOrWhiteSpace(method.ModifiedBy))
+                                    {
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-user me-1"></i>@method.ModifiedBy
+                                        </small>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <form method="post" asp-page-handler="SetStatus" class="d-inline" 
+                                          onsubmit="return confirm('@(method.IsActive ? "Bạn có chắc muốn TẮT phương thức này?\n\nKhách hàng sẽ không thể sử dụng phương thức này để thanh toán." : "Bạn có chắc muốn KÍCH HOẠT phương thức này?\n\nKhách hàng sẽ có thể sử dụng phương thức này để thanh toán.")');">
+                                        <input type="hidden" name="id" value="@method.Id" />
+                                        @if (method.IsActive)
+                                        {
+                                            <button type="submit" class="btn btn-danger btn-sm"
+                                                    name="isActive" value="false"
+                                                    title="Tắt phương thức này">
+                                                <i class="fas fa-ban me-1"></i>Tắt
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="btn btn-success btn-sm"
+                                                    name="isActive" value="true"
+                                                    title="Kích hoạt lại phương thức">
+                                                <i class="fas fa-check me-1"></i>Bật
+                                            </button>
+                                        }
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Section -->
+    <div class="alert alert-info mt-4">
+        <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Hướng dẫn</h6>
+        <ul class="mb-0 small">
+            <li><strong>Đang kích hoạt (màu xanh):</strong> Phương thức này đang khả dụng cho khách hàng</li>
+            <li><strong>Đang tắt (màu xám):</strong> Phương thức này không khả dụng, khách hàng không thể chọn</li>
+            <li>Click nút <strong>"Bật"</strong> hoặc <strong>"Tắt"</strong> để thay đổi trạng thái</li>
+            <li>Khách hàng chỉ nhìn thấy các phương thức <strong>đang kích hoạt</strong> khi thanh toán</li>
+        </ul>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Auto dismiss alerts after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert-success, .alert-danger');
+            alerts.forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+}

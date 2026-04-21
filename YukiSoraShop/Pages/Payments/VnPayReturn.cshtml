@@ -1,0 +1,52 @@
+﻿@page
+@model YukiSoraShop.Pages.Payments.PaymentsVnPayReturnModel
+@{
+    ViewData["Title"] = "Kết quả thanh toán VNPay";
+}
+
+<h2>Kết quả thanh toán</h2>
+
+@if (Model.IsSuccess)
+{
+    <div class="alert alert-success">
+        Thanh toán thành công!
+    </div>
+}
+else
+{
+    <div class="alert alert-danger">
+        Thanh toán thất bại.
+    </div>
+}
+
+<table class="table">
+    <tr>
+        <th>OrderId</th>
+        <td>@Model.OrderId</td>
+    </tr>
+    <tr>
+        <th>TransactionRef</th>
+        <td>@Model.TransactionRef</td>
+    </tr>
+    <tr>
+        <th>BankCode</th>
+        <td>@Model.BankCode</td>
+    </tr>
+    <tr>
+        <th>PayDate</th>
+        <td>@Model.PayDate</td>
+    </tr>
+    <tr>
+        <th>Số tiền (VND)</th>
+        <td>@Model.Amount.ToString("N0")</td>
+    </tr>
+    <tr>
+        <th>Thông báo</th>
+        <td>@Model.Message</td>
+    </tr>
+</table>
+
+<p>
+    <a class="btn btn-secondary" href="/Orders/Detail?id=@Model.OrderId">Quay lại đơn hàng</a>
+    <a class="btn btn-primary" href="/">Trang chủ</a>
+</p>

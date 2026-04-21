@@ -1,0 +1,98 @@
+﻿@page
+@model YukiSoraShop.Pages.Orders.OrdersCheckoutModel
+@{
+    ViewData["Title"] = "Thanh toán qua VNPay";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-credit-card me-2"></i>Thanh toán qua VNPay
+                    </h4>
+                </div>
+                <div class="card-body">
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="OrderId" />
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Mã đơn hàng</label>
+                            <input class="form-control form-control-lg" value="#@Model.OrderId" disabled />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Tổng thanh toán</label>
+                            <div class="input-group input-group-lg">
+                                <input class="form-control fw-bold text-primary" 
+                                       value="@(Model.GrandTotal?.ToString("N0") ?? "0")" 
+                                       disabled />
+                                <span class="input-group-text">VNĐ</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Phương thức thanh toán (tùy chọn)</label>
+                            <select class="form-select" asp-for="BankCode">
+                                <option value="">-- Chọn trên trang VNPay --</option>
+                                <option value="VNPAYQR">VNPAYQR - Quét mã QR</option>
+                                <option value="VNBANK">VNBANK - Thẻ ATM nội địa</option>
+                                <option value="INTCARD">INTCARD - Thẻ quốc tế</option>
+                            </select>
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Nếu để trống, bạn sẽ chọn phương thức thanh toán trên trang VNPay
+                            </small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Loại hàng hóa</label>
+                            <input class="form-control" asp-for="OrderTypeCode" placeholder="Ví dụ: other, fashion, ..." />
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Mã danh mục theo VNPay (mặc định: <code>other</code>)
+                            </small>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-arrow-right me-2"></i>Thanh toán qua VNPay
+                            </button>
+                            <a asp-page="/Orders/PaymentMethod" asp-route-OrderId="@Model.OrderId" 
+                               class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Quay lại chọn phương thức
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="card mt-4 border-info">
+                <div class="card-body">
+                    <h6 class="text-info mb-3">
+                        <i class="fas fa-shield-alt me-2"></i>Thanh toán an toàn với VNPay
+                    </h6>
+                    <ul class="small mb-0">
+                        <li class="mb-2">Hỗ trợ đa dạng phương thức: ATM, thẻ quốc tế, QR Code</li>
+                        <li class="mb-2">Mã hóa SSL 256-bit bảo mật tuyệt đối</li>
+                        <li class="mb-2">Xác thực 3D-Secure cho giao dịch an toàn</li>
+                        <li class="mb-2">Giao dịch được xử lý ngay lập tức</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

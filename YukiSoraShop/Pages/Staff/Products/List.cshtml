@@ -1,0 +1,206 @@
+﻿@page
+@model YukiSoraShop.Pages.Staff.Products.StaffProductsModel
+@{
+    ViewData["Title"] = "Quản lý sản phẩm";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-light px-3 py-2 rounded shadow-sm">
+                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none"><i class="fas fa-home me-1"></i>Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a href="/Customer/Catalog" class="text-decoration-none">Sản phẩm</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Quản lý</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">
+                        <i class="fas fa-box text-primary me-2"></i>Quản lý sản phẩm
+                    </h2>
+                    <p class="text-muted mb-0">Quản lý danh sách sản phẩm trong cửa hàng</p>
+                </div>
+                <a href="/Staff/Products/Create" class="btn btn-primary shadow-sm">
+                    <i class="fas fa-plus me-2"></i>Thêm sản phẩm mới
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold text-muted"><i class="fas fa-search me-1"></i>Tìm kiếm</label>
+                            <input class="form-control" type="text" name="search" value="@Model.Search" placeholder="Nhập tên sản phẩm..." />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold text-muted"><i class="fas fa-filter me-1"></i>Danh mục</label>
+                            <select class="form-select" name="category" asp-items="Model.CategoryOptions">
+                                <option value="">-- Tất cả danh mục --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold text-muted"><i class="fas fa-list-ol me-1"></i>Hiển thị</label>
+                            <select class="form-select" name="size">
+                                <option value="10" selected="@(Model.Size == 10)">10</option>
+                                <option value="25" selected="@(Model.Size == 25)">25</option>
+                                <option value="50" selected="@(Model.Size == 50)">50</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button class="btn btn-primary me-2" type="submit">
+                                <i class="fas fa-filter me-1"></i>Lọc
+                            </button>
+                            <a href="/Staff/Products/List" class="btn btn-outline-secondary">
+                                <i class="fas fa-redo me-1"></i>Đặt lại
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Table Card -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-semibold">
+                            <i class="fas fa-list text-primary me-2"></i>Danh sách sản phẩm
+                        </h5>
+                        @if (Model.TotalItems > 0)
+                        {
+                            <span class="badge bg-primary">@Model.TotalItems sản phẩm</span>
+                        }
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    @await Html.PartialAsync("_Alerts")
+                    
+                    @if (Model.Products != null && Model.Products.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-center" style="width: 80px;">ID</th>
+                                        <th>Tên sản phẩm</th>
+                                        <th class="text-end">Giá</th>
+                                        <th class="text-center">Tồn kho</th>
+                                        <th>Danh mục</th>
+                                        <th class="text-center">Trạng thái</th>
+                                        <th class="text-center" style="width: 150px;">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var product in Model.Products)
+                                    {
+                                        <tr>
+                                            <td class="text-center fw-semibold">#@product.Id</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div>
+                                                        <div class="fw-semibold">@product.ProductName</div>
+                                                        @if (!string.IsNullOrEmpty(product.Description))
+                                                        {
+                                                            <small class="text-muted">@(product.Description.Length > 50 ? product.Description.Substring(0, 50) + "..." : product.Description)</small>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-end fw-semibold text-primary">@product.Price.ToString("N0") ₫</td>
+                                            <td class="text-center">
+                                                <span class="badge @(product.StockQuantity > 10 ? "bg-success" : product.StockQuantity > 0 ? "bg-warning" : "bg-danger")">
+                                                    @product.StockQuantity
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark border">@product.CategoryName</span>
+                                            </td>
+                                            <td class="text-center">
+                                                @if (product.StockQuantity > 0)
+                                                {
+                                                    <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Còn hàng</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Hết hàng</span>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <a href="/Staff/Products/Edit/@product.Id" class="btn btn-outline-primary" title="Chỉnh sửa">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a href="/Staff/Products/Delete/@product.Id" class="btn btn-outline-danger" title="Xóa">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        @if (Model.TotalPages > 1)
+                        {
+                            <div class="card-footer bg-white border-0">
+                                <nav aria-label="Product pagination">
+                                    <ul class="pagination pagination-sm justify-content-center mb-0">
+                                        <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                                            <a class="page-link" href="?page=@(Model.Page-1)&size=@Model.Size&search=@Model.Search&category=@Model.Category">
+                                                <i class="fas fa-chevron-left"></i>
+                                            </a>
+                                        </li>
+                                        
+                                        @for (int i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.TotalPages, Model.Page + 2); i++)
+                                        {
+                                            <li class="page-item @(i == Model.Page ? "active" : "")">
+                                                <a class="page-link" href="?page=@i&size=@Model.Size&search=@Model.Search&category=@Model.Category">@i</a>
+                                            </li>
+                                        }
+                                        
+                                        <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
+                                            <a class="page-link" href="?page=@(Model.Page+1)&size=@Model.Size&search=@Model.Search&category=@Model.Category">
+                                                <i class="fas fa-chevron-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                                <div class="text-center mt-2">
+                                    <small class="text-muted">Trang @Model.Page / @Model.TotalPages</small>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
+                            <h5 class="text-muted">Chưa có sản phẩm nào</h5>
+                            <p class="text-muted mb-4">Hãy thêm sản phẩm đầu tiên của bạn!</p>
+                            <a href="/Staff/Products/Create" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Thêm sản phẩm
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,77 @@
+﻿@page
+@model YukiSoraShop.Pages.Admin.AccountManagementModel
+@{
+    ViewData["Title"] = "Quản lý Tài khoản";
+}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-user-cog text-primary"></i> Quản lý Tài khoản
+        </h1>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Danh sách Người dùng</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Email / Username</th>
+                        <th>Họ Tên</th>
+                        <th>Số điện thoại</th>
+                        <th>Địa chỉ</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Users.Any())
+                    {
+                        @foreach (var user in Model.Users)
+                        {
+                            <tr>
+                                <td>@user.Id</td>
+                                <td>
+                                    <strong>@user.Email</strong><br />
+                                    <small class="text-muted">(@user.Username)</small>
+                                </td>
+                                <td>@user.FullName</td>
+                                <td>@user.PhoneNumber</td>
+                                <td>@user.Address</td>
+                                <td>@user.CreatedAt.ToShortDateString()</td>
+                                <td>
+                                    <a href="/Customer/EditProfile?id=@user.Id" class="btn btn-sm btn-warning">Sửa</a>
+                                    <button class="btn btn-sm btn-danger" onclick="confirmDelete('@user.Id', '@user.FullName')">Xóa Mềm</button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center">
+                                Không tìm thấy tài khoản nào.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(id, name) {
+            if (confirm(`Bạn có chắc chắn muốn xóa mềm tài khoản của ${name} (ID: ${id}) không?`)) {
+                alert("Chức năng xóa sẽ được triển khai sau!");
+            }
+        }
+    </script>
+}

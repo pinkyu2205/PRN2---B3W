@@ -1,0 +1,41 @@
+@page "{id:int}"
+@model YukiSoraShop.Pages.Staff.Products.StaffProductDeleteModel
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Moderator,Staff")]
+@{
+    ViewData["Title"] = "Xóa sản phẩm";
+}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4 text-danger">
+            <i class="fas fa-trash"></i> Xóa sản phẩm
+        </h1>
+    </div>
+</div>
+
+@await Html.PartialAsync("_Alerts")
+
+@if (Model.Product != null)
+{
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        Bạn có chắc chắn muốn xóa sản phẩm "<strong>@Model.Product.ProductName</strong>"?
+    </div>
+
+    <form method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">
+            <i class="fas fa-trash"></i> Xóa
+        </button>
+        <a href="/Staff/Products/List" class="btn btn-secondary ms-2">
+            <i class="fas fa-arrow-left"></i> Hủy
+        </a>
+    </form>
+}
+else
+{
+    <div class="alert alert-info">
+        Sản phẩm không tồn tại.
+    </div>
+}

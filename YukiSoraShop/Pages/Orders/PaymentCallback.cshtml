@@ -1,0 +1,137 @@
+﻿@page
+@model YukiSoraShop.Pages.Orders.OrdersPaymentCallbackModel
+@{
+    ViewData["Title"] = "Kết quả thanh toán";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            @if (Model.IsSuccess)
+            {
+                <!-- SUCCESS CARD -->
+                <div class="card border-0 shadow-lg">
+                    <div class="card-header bg-success text-white text-center py-4">
+                        <div class="mb-3">
+                            <i class="fas fa-check-circle fa-5x"></i>
+                        </div>
+                        <h2 class="fw-bold mb-0">Thanh toán thành công!</h2>
+                    </div>
+                    <div class="card-body p-5">
+                        <div class="alert alert-success border-success mb-4">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>@Model.Message</strong>
+                            <br />
+                            <small>Đơn hàng của bạn đã được xác nhận và đang được xử lý.</small>
+                        </div>
+
+                        <h5 class="fw-bold mb-3">Thông tin giao dịch</h5>
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr>
+                                    <th class="text-muted" style="width: 40%;">Mã đơn hàng:</th>
+                                    <td class="fw-bold">#@Model.OrderId</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Mã giao dịch:</th>
+                                    <td>@Model.TransactionRef</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Ngân hàng:</th>
+                                    <td>@Model.BankCode</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Thời gian:</th>
+                                    <td>@Model.PayDate</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Số tiền:</th>
+                                    <td class="text-success fw-bold fs-5">@Model.Amount.ToString("N0") VNĐ</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <a asp-page="/Customer/MyOrders" class="btn btn-primary btn-lg">
+                                <i class="fas fa-receipt me-2"></i>Xem đơn hàng của tôi
+                            </a>
+                            <a asp-page="/Customer/Catalog" class="btn btn-outline-secondary">
+                                <i class="fas fa-shopping-bag me-2"></i>Tiếp tục mua sắm
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- FAILURE CARD -->
+                <div class="card border-0 shadow-lg">
+                    <div class="card-header bg-danger text-white text-center py-4">
+                        <div class="mb-3">
+                            <i class="fas fa-times-circle fa-5x"></i>
+                        </div>
+                        <h2 class="fw-bold mb-0">Thanh toán thất bại</h2>
+                    </div>
+                    <div class="card-body p-5">
+                        <div class="alert alert-danger border-danger mb-4">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>@Model.Message</strong>
+                            <br />
+                            <small>Giao dịch không thành công. Vui lòng thử lại hoặc chọn phương thức thanh toán khác.</small>
+                        </div>
+
+                        <h5 class="fw-bold mb-3">Thông tin giao dịch</h5>
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr>
+                                    <th class="text-muted" style="width: 40%;">Mã đơn hàng:</th>
+                                    <td class="fw-bold">#@Model.OrderId</td>
+                                </tr>
+                                @if (!string.IsNullOrEmpty(Model.TransactionRef))
+                                {
+                                    <tr>
+                                        <th class="text-muted">Mã tham chiếu:</th>
+                                        <td>@Model.TransactionRef</td>
+                                    </tr>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.PayDate))
+                                {
+                                    <tr>
+                                        <th class="text-muted">Thời gian:</th>
+                                        <td>@Model.PayDate</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <a asp-page="/Orders/PaymentMethod" asp-route-OrderId="@Model.OrderId" class="btn btn-danger btn-lg">
+                                <i class="fas fa-redo me-2"></i>Thử lại thanh toán
+                            </a>
+                            <a asp-page="/Customer/MyOrders" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Quay lại đơn hàng
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- HELP CARD -->
+            <div class="card border-info mt-4">
+                <div class="card-body">
+                    <h6 class="text-info mb-3">
+                        <i class="fas fa-question-circle me-2"></i>Cần hỗ trợ
+                    </h6>
+                    <p class="small mb-2">
+                        Nếu bạn gặp vấn đề với thanh toán hoặc có bất kỳ thắc mắc nào, vui lòng liên hệ với chúng tôi:
+                    </p>
+                    <ul class="small mb-0">
+                        <li>Hotline: <strong>+84 123 456 789</strong> (24/7)</li>
+                        <li>Email: <strong>support@yukisora.vn</strong></li>
+                        <li>Live Chat: Nhấn nút chat ở góc dưới phải</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
