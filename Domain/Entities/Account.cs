@@ -37,5 +37,9 @@ public partial class Account : BaseFullEntity
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+
+    public virtual Shop? Shop { get; set; }
+
+    public virtual ICollection<ShopApplication> ShopApplications { get; set; } = new List<ShopApplication>();
 }
 

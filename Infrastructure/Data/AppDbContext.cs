@@ -42,6 +42,10 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ProductDetail> ProductDetails { get; set; }
 
+    public virtual DbSet<Shop> Shops { get; set; }
+
+    public virtual DbSet<ShopApplication> ShopApplications { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

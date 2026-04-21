@@ -1,0 +1,162 @@
+using Application.Services.Interfaces;
+using Domain.Entities;
+using Domain.Enums;
+
+namespace Application.Services;
+
+public class ShopApplicationService : IShopApplicationService
+{
+    private readonly IUnitOfWork _uow;
+    private readonly IShopService _shopService;
+
+    public ShopApplicationService(IUnitOfWork uow, IShopService shopService)
+    {
+        _uow = uow;
+        _shopService = shopService;
+    }
+
+    public async Task<bool> SubmitApplicationAsync(ShopApplication application)
+    {
+        try
+        {
+            application.Status = ShopApplicationStatus.Pending;
+            await _uow.ShopApplicationRepository.AddAsync(application);
+            await _uow.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    public async Task<List<ShopApplication>> GetPendingApplicationsAsync()
+    {
+        try
+        {
+            var apps = await _uow.ShopApplicationRepository.GetByStatusAsync(ShopApplicationStatus.Pending);
+            return apps.ToList();
+        }
+        catch (Exception)
+        {
+            return new List<ShopApplication>();
+        }
+    }
+
+    public async Task<List<ShopApplication>> GetAllApplicationsAsync()
+    {
+        try
+        {
+            var apps = await _uow.ShopApplicationRepository.GetAllAsync();
+            return apps.ToList();
+        }
+        catch (Exception)
+        {
+            return new List<ShopApplication>();
+        }
+    }
+
+    public async Task<List<ShopApplication>> GetApplicationsByApplicantIdAsync(int applicantId)
+    {
+        try
+        {
+            var apps = await _uow.ShopApplicationRepository.GetByApplicantIdAsync(applicantId);
+            return apps.ToList();
+        }
+        catch (Exception)
+        {
+            return new List<ShopApplication>();
+        }
+    }
+
+    public async Task<ShopApplication?> GetApplicationByIdAsync(int id)
+    {
+        try
+        {
+            return await _uow.ShopApplicationRepository.FindOneAsync(
+                a => a.Id == id,
+                includeProperties: "Applicant");
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    public async Task<bool> ApproveApplicationAsync(int applicationId, int reviewerId)
+    {
+        try
+        {
+            var application = await _uow.ShopApplicationRepository.FindOneAsync(
+                a => a.Id == applicationId,
+                includeProperties: "Applicant");
+
+            if (application == null || application.Status != ShopApplicationStatus.Pending)
+                return false;
+
+            // Update application status
+            application.Status = ShopApplicationStatus.Approved;
+            application.ReviewedAt = DateTime.UtcNow;
+            application.ReviewedBy = reviewerId;
+            application.ModifiedAt = DateTime.UtcNow;
+            _uow.ShopApplicationRepository.Update(application);
+
+            // Create shop for the applicant
+            var shop = new Shop
+            {
+                ShopName = application.ShopName,
+                Description = application.Description,
+                PhoneNumber = application.PhoneNumber,
+                Address = application.Address,
+                OwnerId = application.ApplicantId,
+                IsActive = true,
+                CreatedBy = "System",
+                ModifiedBy = "System"
+            };
+
+            await _uow.ShopRepository.AddAsync(shop);
+            await _uow.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> RejectApplicationAsync(int applicationId, int reviewerId, string reason)
+    {
+        try
+        {
+            var application = await _uow.ShopApplicationRepository.GetByIdAsync(applicationId);
+            if (application == null || application.Status != ShopApplicationStatus.Pending)
+                return false;
+
+            application.Status = ShopApplicationStatus.Rejected;
+            application.AdminNote = reason;
+            application.ReviewedAt = DateTime.UtcNow;
+            application.ReviewedBy = reviewerId;
+            application.ModifiedAt = DateTime.UtcNow;
+            _uow.ShopApplicationRepository.Update(application);
+            await _uow.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> HasPendingApplicationAsync(int applicantId)
+    {
+        try
+        {
+            var apps = await _uow.ShopApplicationRepository.GetByApplicantIdAsync(applicantId);
+            return apps.Any(a => a.Status == ShopApplicationStatus.Pending);
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+}

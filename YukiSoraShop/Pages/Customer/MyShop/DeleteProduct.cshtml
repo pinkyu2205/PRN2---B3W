@@ -1,0 +1,57 @@
+@page "{id:int}"
+@model YukiSoraShop.Pages.Customer.MyShop.DeleteProductModel
+@{
+    ViewData["Title"] = "Xóa sản phẩm";
+}
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-page="/Customer/MyShop">Shop của tôi</a></li>
+            <li class="breadcrumb-item active">Xóa sản phẩm</li>
+        </ol>
+    </nav>
+
+    @if (Model.Product != null)
+    {
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-trash me-2"></i>Xác nhận xóa sản phẩm</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Bạn có chắc chắn muốn xóa sản phẩm này? Thao tác này không thể hoàn tác.
+                </div>
+                <table class="table">
+                    <tr>
+                        <th style="width: 150px;">Tên sản phẩm</th>
+                        <td>@Model.Product.ProductName</td>
+                    </tr>
+                    <tr>
+                        <th>Danh mục</th>
+                        <td>@Model.Product.CategoryName</td>
+                    </tr>
+                    <tr>
+                        <th>Giá</th>
+                        <td>@Model.Product.Price.ToString("N0") ₫</td>
+                    </tr>
+                    <tr>
+                        <th>Tồn kho</th>
+                        <td>@Model.Product.StockQuantity</td>
+                    </tr>
+                </table>
+                <form method="post" asp-route-id="@Model.Product.Id">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i> Xóa sản phẩm
+                        </button>
+                        <a asp-page="/Customer/MyShop" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Hủy
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>

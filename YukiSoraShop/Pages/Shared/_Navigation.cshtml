@@ -49,6 +49,8 @@
                     <li><a class="dropdown-item" asp-page="/Admin/AccountManagement"><i class="fas fa-users-cog me-2"></i> Quản lý tài khoản</a></li>
                     <li><a class="dropdown-item" asp-page="/Admin/PaymentMethods"><i class="fas fa-credit-card me-2"></i> Phương thức thanh toán</a></li>
                     <li><a class="dropdown-item" asp-page="/Admin/CashPayments"><i class="fas fa-hand-holding-usd me-2"></i> Thanh toán tiền mặt</a></li>
+                    <li><hr class="dropdown-divider" /></li>
+                    <li><a class="dropdown-item" asp-page="/Admin/ShopApplications"><i class="fas fa-clipboard-check me-2"></i> Duyệt đơn Shop</a></li>
                 </ul>
             </li>
         }
@@ -82,6 +84,11 @@
             <li class="nav-item">
                 <a class="nav-link fw-semibold" asp-page="/Customer/Contact">
                     <i class="fas fa-headset me-1"></i> Liên hệ
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link fw-semibold" asp-page="/Customer/RegisterShop">
+                    <i class="fas fa-store me-1"></i> Đăng ký Shop
                 </a>
             </li>
         }
@@ -130,6 +137,7 @@
                 {
                     <li><a class="dropdown-item" asp-page="/Customer/Profile"><i class="fas fa-user me-2"></i> Hồ sơ cá nhân</a></li>
                     <li><a class="dropdown-item" asp-page="/Customer/MyOrders"><i class="fas fa-receipt me-2"></i> Đơn hàng của tôi</a></li>
+                    <li><a class="dropdown-item" asp-page="/Customer/MyShop"><i class="fas fa-store me-2"></i> Shop của tôi</a></li>
                     <li><hr class="dropdown-divider" /></li>
                 }
                 <li>

@@ -26,6 +26,8 @@ namespace Infrastructure
         public readonly IProductRepository _productRepository;
         public readonly ICategoryRepository _categoryRepository;
         public readonly IProductDetailRepository _productDetailRepository;
+        public readonly IShopRepository _shopRepository;
+        public readonly IShopApplicationRepository _shopApplicationRepository;
 
         public IAccountRepository AccountRepository => _accountRepository;
         public ICartItemRepository CartItemRepository => _cartItemRepository;
@@ -39,6 +41,8 @@ namespace Infrastructure
         public IProductRepository ProductRepository => _productRepository;
         public ICategoryRepository CategoryRepository => _categoryRepository;
         public IProductDetailRepository ProductDetailRepository => _productDetailRepository;
+        public IShopRepository ShopRepository => _shopRepository;
+        public IShopApplicationRepository ShopApplicationRepository => _shopApplicationRepository;
         public UnitOfWork(AppDbContext context,
             IAccountRepository accountRepository,
             ICartItemRepository cartItemRepository,
@@ -51,7 +55,9 @@ namespace Infrastructure
             IPaymentRepository paymentRepository,
             IProductRepository productRepository,
             ICategoryRepository categoryRepository,
-            IProductDetailRepository productDetailRepository)
+            IProductDetailRepository productDetailRepository,
+            IShopRepository shopRepository,
+            IShopApplicationRepository shopApplicationRepository)
         {
             _context = context;
             _accountRepository = accountRepository;
@@ -66,6 +72,8 @@ namespace Infrastructure
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
             _productDetailRepository = productDetailRepository;
+            _shopRepository = shopRepository;
+            _shopApplicationRepository = shopApplicationRepository;
         }
 
         public async Task<int> SaveChangesAsync()

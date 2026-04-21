@@ -250,5 +250,98 @@ public partial class AppDbContext
                 }
             );
         });
+
+        // Configure Shop entity
+        modelBuilder.Entity<Shop>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.ToTable("Shops");
+
+            entity.Property(e => e.ShopName)
+                .IsRequired()
+                .HasMaxLength(255);
+
+            entity.Property(e => e.Description)
+                .HasMaxLength(2000);
+
+            entity.Property(e => e.LogoUrl)
+                .HasMaxLength(500);
+
+            entity.Property(e => e.PhoneNumber)
+                .HasMaxLength(20);
+
+            entity.Property(e => e.Address)
+                .HasMaxLength(500);
+
+            entity.Property(e => e.IsActive)
+                .HasDefaultValue(true);
+
+            // 1-1 relationship: Account <-> Shop
+            entity.HasOne(s => s.Owner)
+                .WithOne(a => a.Shop)
+                .HasForeignKey<Shop>(s => s.OwnerId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_Shops_Accounts_OwnerId");
+
+            entity.HasIndex(e => e.OwnerId)
+                .IsUnique()
+                .HasDatabaseName("IX_Shops_OwnerId_Unique");
+
+            entity.HasIndex(e => e.ShopName)
+                .HasDatabaseName("IX_Shops_ShopName");
+        });
+
+        // Configure ShopApplication entity
+        modelBuilder.Entity<ShopApplication>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.ToTable("ShopApplications");
+
+            entity.Property(e => e.ShopName)
+                .IsRequired()
+                .HasMaxLength(255);
+
+            entity.Property(e => e.Description)
+                .HasMaxLength(2000);
+
+            entity.Property(e => e.PhoneNumber)
+                .HasMaxLength(20);
+
+            entity.Property(e => e.Address)
+                .HasMaxLength(500);
+
+            entity.Property(e => e.AdminNote)
+                .HasMaxLength(1000);
+
+            entity.Property(e => e.Status)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
+            entity.HasOne(sa => sa.Applicant)
+                .WithMany(a => a.ShopApplications)
+                .HasForeignKey(sa => sa.ApplicantId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_ShopApplications_Accounts_ApplicantId");
+
+            entity.HasIndex(e => e.ApplicantId)
+                .HasDatabaseName("IX_ShopApplications_ApplicantId");
+
+            entity.HasIndex(e => e.Status)
+                .HasDatabaseName("IX_ShopApplications_Status");
+        });
+
+        // Configure Product-Shop relationship (nullable FK)
+        modelBuilder.Entity<Product>(entity =>
+        {
+            entity.HasOne(p => p.Shop)
+                .WithMany(s => s.Products)
+                .HasForeignKey(p => p.ShopId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_Products_Shops_ShopId")
+                .IsRequired(false);
+
+            entity.HasIndex(e => e.ShopId)
+                .HasDatabaseName("IX_Products_ShopId");
+        });
     }
 }

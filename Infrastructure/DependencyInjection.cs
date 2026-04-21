@@ -33,6 +33,8 @@ namespace Infrastructure
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IProductDetailRepository, ProductDetailRepository>();
+            services.AddScoped<IShopRepository, ShopRepository>();
+            services.AddScoped<IShopApplicationRepository, ShopApplicationRepository>();
             #endregion
 
             #region service config
@@ -44,6 +46,8 @@ namespace Infrastructure
             services.AddScoped<ICartService, CartService>();
             services.AddScoped<IAdminDashboardService, AdminDashboardService>();
             services.AddScoped<IPaymentMethodService, PaymentMethodService>();
+            services.AddScoped<IShopService, ShopService>();
+            services.AddScoped<IShopApplicationService, ShopApplicationService>();
             #endregion
 
             #region quartz config

@@ -1,0 +1,113 @@
+@page
+@model YukiSoraShop.Pages.Customer.MyShopModel
+@{
+    ViewData["Title"] = "Shop của tôi";
+}
+
+<div class="container py-4">
+    @if (Model.Shop != null)
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="fas fa-store me-2"></i>@Model.Shop.ShopName</h4>
+                <span class="badge bg-light text-success">Đang hoạt động</span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong><i class="fas fa-info-circle me-1"></i> Mô tả:</strong> @(Model.Shop.Description ?? "Chưa có mô tả")</p>
+                        <p><strong><i class="fas fa-phone me-1"></i> Điện thoại:</strong> @(Model.Shop.PhoneNumber ?? "Chưa cập nhật")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong><i class="fas fa-map-marker-alt me-1"></i> Địa chỉ:</strong> @(Model.Shop.Address ?? "Chưa cập nhật")</p>
+                        <p><strong><i class="fas fa-box me-1"></i> Số sản phẩm:</strong> @Model.ShopProducts.Count</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Management -->
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-boxes me-2"></i>Sản phẩm của Shop</h5>
+                <a asp-page="/Customer/MyShop/CreateProduct" class="btn btn-success btn-sm">
+                    <i class="fas fa-plus me-1"></i> Thêm sản phẩm
+                </a>
+            </div>
+            <div class="card-body">
+                <!-- Search -->
+                <form method="get" class="mb-3">
+                    <div class="input-group" style="max-width: 400px;">
+                        <input type="text" name="Search" value="@Model.Search" class="form-control" placeholder="Tìm sản phẩm..." />
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        @if (!string.IsNullOrWhiteSpace(Model.Search))
+                        {
+                            <a asp-page="/Customer/MyShop" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        }
+                    </div>
+                </form>
+
+                @if (Model.ShopProducts.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tên sản phẩm</th>
+                                    <th>Danh mục</th>
+                                    <th>Giá</th>
+                                    <th>Tồn kho</th>
+                                    <th class="text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var product in Model.ShopProducts)
+                                {
+                                    <tr>
+                                        <td>@product.Id</td>
+                                        <td>@product.ProductName</td>
+                                        <td>@product.CategoryName</td>
+                                        <td>@product.Price.ToString("N0") ₫</td>
+                                        <td>
+                                            @if (product.StockQuantity > 0)
+                                            {
+                                                <span class="badge bg-success">@product.StockQuantity</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Hết hàng</span>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            <a asp-page="/Customer/MyShop/EditProduct" asp-route-id="@product.Id" class="btn btn-outline-primary btn-sm" title="Sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-page="/Customer/MyShop/DeleteProduct" asp-route-id="@product.Id" class="btn btn-outline-danger btn-sm" title="Xóa">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-box-open fa-3x mb-3"></i>
+                        <p>Chưa có sản phẩm nào. Hãy thêm sản phẩm đầu tiên!</p>
+                        <a asp-page="/Customer/MyShop/CreateProduct" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i> Thêm sản phẩm
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
