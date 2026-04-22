@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using Application.Services.Interfaces;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -13,11 +13,13 @@ namespace Application.Services
     {
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
+        private readonly IRealtimeService _realtimeService;
 
-        public ProductService(IUnitOfWork uow, IMapper mapper)
+        public ProductService(IUnitOfWork uow, IMapper mapper, IRealtimeService realtimeService)
         {
             _uow = uow;
             _mapper = mapper;
+            _realtimeService = realtimeService;
         }
 
         // DTO methods for display (async)
@@ -169,6 +171,10 @@ namespace Application.Services
             {
                 _uow.ProductRepository.Update(product);
                 await _uow.SaveChangesAsync();
+
+                // Real-time notification for stock change
+                await _realtimeService.BroadcastProductStockChangedAsync(product.Id, product.StockQuantity);
+
                 return true;
             }
             catch (Exception)

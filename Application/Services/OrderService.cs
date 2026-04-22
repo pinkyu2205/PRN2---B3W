@@ -9,10 +9,12 @@ namespace Application.Services
     public class OrderService : IOrderService
     {
         private readonly IUnitOfWork _uow;
+        private readonly IRealtimeService _realtimeService;
 
-        public OrderService(IUnitOfWork uow)
+        public OrderService(IUnitOfWork uow, IRealtimeService realtimeService)
         {
             _uow = uow;
+            _realtimeService = realtimeService;
         }
 
         public async Task<Order> CreateOrderFromCartAsync(int accountId, IEnumerable<OrderItemInput> items, string createdBy, CancellationToken ct = default)
@@ -74,6 +76,11 @@ namespace Application.Services
                 await _uow.SaveChangesAsync();
                 await tx.CommitAsync(ct);
             }
+
+            // Real-time notifications
+            await _realtimeService.NotifyCustomerOrderStatusChangedAsync(accountId, order.Id, order.Status);
+            await _realtimeService.BroadcastAdminDashboardUpdateAsync("NewOrder", order.Id);
+            
             return order;
         }
 

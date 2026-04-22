@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model YukiSoraShop.Pages.Customer.CustomerCatalogModel
 @{
     ViewData["Title"] = "Sản phẩm - YukiSoraShop";
@@ -7,18 +7,18 @@
 
 <style>
     :root {
-        --primary-1: #0d47a1;
-        --primary-2: #1976d2;
-        --primary-3: #42a5f5;
-        --accent-1: #764ba2;
-        --accent-2: #667eea;
+        --primary-1: #111827;
+        --primary-2: #374151;
+        --primary-3: #4B5563;
+        --accent-1: #2563EB;
+        --accent-2: #3B82F6;
         --muted: #6b7280;
         --bg-soft: #f5f7fb;
     }
 
     .gradient-text {
-        background: linear-gradient(135deg, var(--primary-1), var(--primary-2));
-        -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        color: var(--primary-1);
+        font-weight: 800;
     }
 
     /* Layout */
@@ -35,7 +35,7 @@
     .topbar { background: #fff; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,.06); }
 
     /* Hot strip */
-    .hot-strip { background: linear-gradient(135deg, #eef5ff, #f5f7fb); border-radius: 16px; padding: 18px; }
+    .hot-strip { background: #F3F4F6; border-radius: 16px; padding: 18px; border: 1px solid #E5E7EB; }
     .hot-scroll { display: grid; grid-auto-flow: column; gap: 14px; overflow-x: auto; scrollbar-width: thin; }
     .hot-card { min-width: 240px; border: none; border-radius: 14px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,.06); transition: .25s; }
     .hot-card:hover { transform: translateY(-4px); }
@@ -45,21 +45,21 @@
     .product-card { border: none; border-radius: 16px; overflow: hidden; transition: .25s; height: 100%; box-shadow: 0 8px 20px rgba(0,0,0,.06); }
     .product-card:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,0,0,.12); }
     .product-img { height: 220px; object-fit: cover; }
-    .category-badge { background: linear-gradient(135deg, #f093fb, #f5576c); color:#fff; border: none; padding: 4px 10px; border-radius: 999px; font-size: .75rem; }
-    .price { font-weight: 800; font-size: 1.15rem; color: var(--primary-1); }
-    .stock-badge { position: absolute; top: 12px; right: 12px; }
-    .hot-badge { position: absolute; top: 12px; left: 12px; background: linear-gradient(135deg, #FF6B6B, #FF8E53); color:#fff; border-radius: 999px; padding: 4px 10px; font-weight: 700; font-size: .75rem; }
+    .category-badge { background: #E5E7EB; color:#374151; border: none; padding: 4px 10px; border-radius: 6px; font-size: .75rem; font-weight: 600; }
+    .price { font-weight: 800; font-size: 1.15rem; color: #111827; }
+    .stock-badge { position: absolute; top: 12px; right: 12px; border-radius: 6px; }
+    .hot-badge { position: absolute; top: 12px; left: 12px; background: #DC2626; color:#fff; border-radius: 6px; padding: 4px 10px; font-weight: 700; font-size: .75rem; }
 
     /* Buttons */
-    .btn-gradient { background: linear-gradient(135deg, var(--primary-1), var(--primary-2)); color:#fff; border:none; }
-    .btn-gradient:hover { filter: brightness(1.05); color:#fff; }
-    .btn-buy-now { background: linear-gradient(135deg, #ff6b00, #ff2f55); color: #fff; border: none; box-shadow: 0 10px 18px rgba(255, 47, 85, .24); }
-    .btn-buy-now:hover { color: #fff; filter: brightness(1.04); transform: translateY(-1px); }
-    .variant-select { border-color: rgba(13, 71, 161, .2); font-size: .85rem; }
+    .btn-gradient { background: #111827; color:#fff; border:none; border-radius: 8px; }
+    .btn-gradient:hover { background: #374151; color:#fff; }
+    .btn-buy-now { background: #2563EB; color: #fff; border: none; border-radius: 8px; }
+    .btn-buy-now:hover { background: #1D4ED8; color: #fff; transform: translateY(-1px); }
+    .variant-select { border-color: #D1D5DB; font-size: .85rem; border-radius: 6px; }
 
     /* Pagination */
-    .pagination .page-link { border-radius: 10px; margin: 0 4px; }
-    .pagination .page-item.active .page-link { background: linear-gradient(135deg, var(--primary-1), var(--primary-2)); border-color: transparent; }
+    .pagination .page-link { border-radius: 8px; margin: 0 4px; border-color: #E5E7EB; color: #374151; }
+    .pagination .page-item.active .page-link { background: #111827; border-color: transparent; color: #FFFFFF; }
 
     /* Small helpers */
     .muted { color: var(--muted); }
@@ -196,7 +196,7 @@
                     @foreach (var product in Model.Products)
                     {
                         <div class="col-12 col-sm-6 col-md-4 col-xl-3">
-                            <div class="card product-card">
+                            <div class="card product-card" id="product-card-@product.Id">
                                 <div class="position-relative">
                                     @if (product.Stock > 50)
                                     { <span class="hot-badge"><i class="fas fa-fire me-1"></i>HOT</span> }
@@ -405,6 +405,31 @@
             card.style.transform = 'translateY(14px)';
             card.style.transition = 'all .45s ease';
             observer.observe(card);
+        });
+
+        // Listen for Real-Time Stock Updates from CatalogHub
+        window.addEventListener('ProductStockUpdated', function (e) {
+            const data = e.detail;
+            const cardItem = document.getElementById('product-card-' + data.productId);
+            
+            if (cardItem) {
+                const stockBadge = cardItem.querySelector('.stock-badge');
+                if (data.currentStock > 0) {
+                    stockBadge.className = 'badge stock-badge bg-success';
+                    stockBadge.innerHTML = '<i class="fas fa-check-circle me-1"></i>Còn hàng';
+                } else {
+                    stockBadge.className = 'badge stock-badge bg-danger';
+                    stockBadge.innerHTML = '<i class="fas fa-times-circle me-1"></i>Hết hàng';
+                    
+                    // Disable buy button
+                    const buyBtn = cardItem.querySelector('.btn-buy-now');
+                    if (buyBtn) {
+                        buyBtn.className = 'btn btn-secondary btn-sm w-100 fw-semibold';
+                        buyBtn.disabled = true;
+                        buyBtn.innerHTML = '<i class="fas fa-times-circle me-1"></i>Hết hàng';
+                    }
+                }
+            }
         });
     </script>
 }

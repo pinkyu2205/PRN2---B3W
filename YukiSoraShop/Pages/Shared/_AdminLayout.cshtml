@@ -32,7 +32,7 @@
         /* SIDEBAR */
         .admin-sidebar {
             width: var(--admin-sidebar-width);
-            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            background: #111827;
             color: white;
             position: fixed;
             left: 0;
@@ -296,6 +296,10 @@
     <script src="~/lib/jquery/jquery.min.js"></script>
     <script src="~/lib/jquery-validation/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+    <!-- SignalR & Realtime integration -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script src="~/js/realtime-notification.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
