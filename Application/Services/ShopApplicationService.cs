@@ -8,11 +8,13 @@ public class ShopApplicationService : IShopApplicationService
 {
     private readonly IUnitOfWork _uow;
     private readonly IShopService _shopService;
+    private readonly IRealtimeService _realtimeService;
 
-    public ShopApplicationService(IUnitOfWork uow, IShopService shopService)
+    public ShopApplicationService(IUnitOfWork uow, IShopService shopService, IRealtimeService realtimeService)
     {
         _uow = uow;
         _shopService = shopService;
+        _realtimeService = realtimeService;
     }
 
     public async Task<bool> SubmitApplicationAsync(ShopApplication application)
@@ -22,6 +24,10 @@ public class ShopApplicationService : IShopApplicationService
             application.Status = ShopApplicationStatus.Pending;
             await _uow.ShopApplicationRepository.AddAsync(application);
             await _uow.SaveChangesAsync();
+
+            // Real-time notification to admin
+            await _realtimeService.SendNotificationToRoleAsync("Administrator", "Hồ sơ mới", $"Người dùng {application.ApplicantId} nộp hồ sơ mở shop.", "info");
+            
             return true;
         }
         catch (Exception)
@@ -116,6 +122,10 @@ public class ShopApplicationService : IShopApplicationService
 
             await _uow.ShopRepository.AddAsync(shop);
             await _uow.SaveChangesAsync();
+
+            // Notify user
+            await _realtimeService.SendNotificationToUserAsync(application.ApplicantId, "Chúc mừng", "Hồ sơ mở shop của bạn đã được duyệt!", "success");
+
             return true;
         }
         catch (Exception)
@@ -139,6 +149,10 @@ public class ShopApplicationService : IShopApplicationService
             application.ModifiedAt = DateTime.UtcNow;
             _uow.ShopApplicationRepository.Update(application);
             await _uow.SaveChangesAsync();
+
+            // Notify user
+            await _realtimeService.SendNotificationToUserAsync(application.ApplicantId, "Rất tiếc", "Hồ sơ mở shop của bạn đã bị từ chối.", "warning");
+            
             return true;
         }
         catch (Exception)

@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model YukiSoraShop.Pages.Customer.CustomerCatalogModel
 @{
     ViewData["Title"] = "Sản phẩm - YukiSoraShop";
@@ -196,7 +196,7 @@
                     @foreach (var product in Model.Products)
                     {
                         <div class="col-12 col-sm-6 col-md-4 col-xl-3">
-                            <div class="card product-card">
+                            <div class="card product-card" id="product-card-@product.Id">
                                 <div class="position-relative">
                                     @if (product.Stock > 50)
                                     { <span class="hot-badge"><i class="fas fa-fire me-1"></i>HOT</span> }
@@ -405,6 +405,31 @@
             card.style.transform = 'translateY(14px)';
             card.style.transition = 'all .45s ease';
             observer.observe(card);
+        });
+
+        // Listen for Real-Time Stock Updates from CatalogHub
+        window.addEventListener('ProductStockUpdated', function (e) {
+            const data = e.detail;
+            const cardItem = document.getElementById('product-card-' + data.productId);
+            
+            if (cardItem) {
+                const stockBadge = cardItem.querySelector('.stock-badge');
+                if (data.currentStock > 0) {
+                    stockBadge.className = 'badge stock-badge bg-success';
+                    stockBadge.innerHTML = '<i class="fas fa-check-circle me-1"></i>Còn hàng';
+                } else {
+                    stockBadge.className = 'badge stock-badge bg-danger';
+                    stockBadge.innerHTML = '<i class="fas fa-times-circle me-1"></i>Hết hàng';
+                    
+                    // Disable buy button
+                    const buyBtn = cardItem.querySelector('.btn-buy-now');
+                    if (buyBtn) {
+                        buyBtn.className = 'btn btn-secondary btn-sm w-100 fw-semibold';
+                        buyBtn.disabled = true;
+                        buyBtn.innerHTML = '<i class="fas fa-times-circle me-1"></i>Hết hàng';
+                    }
+                }
+            }
         });
     </script>
 }

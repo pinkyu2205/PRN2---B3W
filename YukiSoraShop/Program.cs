@@ -61,6 +61,7 @@ namespace YukiSoraShop
                 builder.Services.AddInfrastructureServices(builder.Configuration);
                 builder.Services.AddPaymentServices(builder.Configuration);
                 builder.Services.AddSignalR();
+                builder.Services.AddScoped<Application.Services.Interfaces.IRealtimeService, YukiSoraShop.Services.RealtimeService>();
 
                 builder.Services.AddDistributedMemoryCache();
                 builder.Services.AddMemoryCache();
@@ -97,6 +98,8 @@ namespace YukiSoraShop
 
                 app.MapRazorPages();
                 app.MapHub<AdminDashboardHub>("/hubs/adminDashboard");
+                app.MapHub<NotificationHub>("/hubs/notification");
+                app.MapHub<CatalogHub>("/hubs/catalog");
                 app.MapGet("/", () => Results.Redirect("/Customer/Catalog"));
 
                 app.Run();

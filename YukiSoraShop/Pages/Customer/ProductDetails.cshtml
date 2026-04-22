@@ -1,4 +1,4 @@
-﻿@page "{id:int}"
+@page "{id:int}"
 @model YukiSoraShop.Pages.Customer.ProductDetailsModel
 @{
     ViewData["Title"] = Model.Product?.Name ?? "Chi tiết sản phẩm";
@@ -44,14 +44,16 @@
                     <h2 class="fw-bold mb-1">@Model.Product.Name</h2>
                     <div class="text-muted small">Mã sản phẩm: #@Model.Product.Id</div>
                 </div>
-                @if (Model.Product.Stock > 0)
-                {
-                    <span class="badge bg-success align-self-start"><i class="fas fa-check-circle me-1"></i> Còn hàng</span>
-                }
-                else
-                {
-                    <span class="badge bg-danger align-self-start"><i class="fas fa-times-circle me-1"></i> Hết hàng</span>
-                }
+                <div id="product-stock-badge-container">
+                    @if (Model.Product.Stock > 0)
+                    {
+                        <span class="badge bg-success align-self-start"><i class="fas fa-check-circle me-1"></i> Còn hàng</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger align-self-start"><i class="fas fa-times-circle me-1"></i> Hết hàng</span>
+                    }
+                </div>
             </div>
 
             <h3 id="product-price" class="text-danger fw-bold my-3">
@@ -123,7 +125,7 @@
                     <dt class="col-sm-4">Danh mục:</dt>
                     <dd class="col-sm-8">@Model.Product.Category</dd>
                     <dt class="col-sm-4">Kho hàng:</dt>
-                    <dd class="col-sm-8">@Model.Product.Stock</dd>
+                    <dd id="product-stock-value" class="col-sm-8">@Model.Product.Stock</dd>
                 </dl>
             </div>
         </div>
@@ -169,6 +171,31 @@
         const newPrice = basePrice + parseFloat(extraPrice || 0);
         if (priceEl) priceEl.innerText = newPrice.toLocaleString('vi-VN') + " VNĐ";
     }
+
+    // Real-time stock update
+    window.addEventListener('ProductStockUpdated', function (e) {
+        const data = e.detail;
+        if (data.productId == parseInt("@Model.Product.Id")) {
+            const stockValueHtml = document.getElementById("product-stock-value");
+            if (stockValueHtml) {
+                stockValueHtml.innerText = data.currentStock;
+            }
+            
+            const badgeContainer = document.getElementById("product-stock-badge-container");
+            if (badgeContainer) {
+                if (data.currentStock > 0) {
+                    badgeContainer.innerHTML = '<span class="badge bg-success align-self-start"><i class="fas fa-check-circle me-1"></i> Còn hàng</span>';
+                } else {
+                    badgeContainer.innerHTML = '<span class="badge bg-danger align-self-start"><i class="fas fa-times-circle me-1"></i> Hết hàng</span>';
+                    if (addToCartBtn) {
+                        addToCartBtn.disabled = true;
+                        addToCartBtn.innerHTML = '<i class="fas fa-times-circle me-2"></i>Hết hàng';
+                    }
+                }
+            }
+        }
+    });
+
 </script>
 }
 
