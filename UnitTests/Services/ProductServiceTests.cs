@@ -2,6 +2,7 @@ using Application;
 using Application.DTOs;
 using Application.IRepository;
 using Application.Services;
+using Application.Services.Interfaces;
 using AutoMapper;
 using Microsoft.Extensions.Logging.Abstractions;
 using Domain.Entities;
@@ -15,6 +16,7 @@ public class ProductServiceTests
     private readonly Mock<IUnitOfWork> _uow = new();
     private readonly Mock<IProductRepository> _productRepo = new();
     private readonly Mock<ICategoryRepository> _categoryRepo = new();
+    private readonly Mock<IRealtimeService> _realtimeService = new();
     private readonly IMapper _mapper;
 
     public ProductServiceTests()
@@ -69,7 +71,7 @@ public class ProductServiceTests
         _productRepo.Setup(r => r.AddAsync(product)).Returns(Task.CompletedTask);
         _uow.Setup(u => u.SaveChangesAsync()).ReturnsAsync(1);
 
-        var service = new ProductService(_uow.Object, _mapper);
+        var service = new ProductService(_uow.Object, _mapper, _realtimeService.Object);
 
         // Act
         var result = await service.CreateProductAsync(product);
@@ -87,7 +89,7 @@ public class ProductServiceTests
         var product = new Product { Id = 9, ProductName = "Old Product" };
         _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
 
-        var service = new ProductService(_uow.Object, _mapper);
+        var service = new ProductService(_uow.Object, _mapper, _realtimeService.Object);
 
         // Act
         var result = await service.DeleteProductAsync(product.Id);
@@ -103,7 +105,7 @@ public class ProductServiceTests
     {
         _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<int>())).ReturnsAsync((Product?)null);
 
-        var service = new ProductService(_uow.Object, _mapper);
+        var service = new ProductService(_uow.Object, _mapper, _realtimeService.Object);
 
         var result = await service.DeleteProductAsync(123);
 
