@@ -1,7 +1,4 @@
-using Application.Payments.Interfaces;
 using Infrastructure;
-using Infrastructure.Payments.Options;
-using Infrastructure.Payments.Providers.VnPay;
 using Serilog;
 using YukiSoraShop.Filters;
 using YukiSoraShop.Hubs;
@@ -77,13 +74,6 @@ namespace YukiSoraShop
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 });
 
-                // Register VNPay options from configuration using correct section name "VnPay"
-                builder.Services.Configure<VnPayOptions>(builder.Configuration.GetSection("VnPay"));
-                builder.Services.AddSingleton<IVnPayGateway, VnPayPaymentGateway>();
-
-                // ensure IHttpContextAccessor exists (for IP helpers)
-                builder.Services.AddHttpContextAccessor();
-
                 var app = builder.Build();
 
                 if (!app.Environment.IsDevelopment())
@@ -107,7 +97,7 @@ namespace YukiSoraShop
 
                 app.MapRazorPages();
                 app.MapHub<AdminDashboardHub>("/hubs/adminDashboard");
-                app.MapGet("/", () => Results.Redirect("/Home"));
+                app.MapGet("/", () => Results.Redirect("/Customer/Catalog"));
 
                 app.Run();
             }

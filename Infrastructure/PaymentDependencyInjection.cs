@@ -20,6 +20,7 @@ namespace Infrastructure
             services.AddScoped<IPaymentOrchestrator, PaymentOrchestrator>();
             services.AddScoped<IInvoiceService, InvoiceService>();
             services.AddScoped<IPaymentQueryService, PaymentQueryService>();
+            services.AddScoped<IPaymentHistoryService, PaymentHistoryService>();
 
             return services;
         }

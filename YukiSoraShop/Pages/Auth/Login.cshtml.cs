@@ -68,6 +68,17 @@ namespace YukiSoraShop.Pages.Auth
                 {
                     return LocalRedirect(returnUrl);
                 }
+
+                if (string.Equals(roleName, "Administrator", StringComparison.OrdinalIgnoreCase))
+                {
+                    return RedirectToPage("/Admin/Dashboard");
+                }
+
+                if (string.Equals(roleName, "Moderator", StringComparison.OrdinalIgnoreCase))
+                {
+                    return RedirectToPage("/Staff/Products/List");
+                }
+
                 return RedirectToPage("/Customer/Catalog");
             }
 

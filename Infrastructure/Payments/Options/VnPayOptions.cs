@@ -15,6 +15,7 @@ namespace Infrastructure.Payments.Options
         public string vnp_CurrCode { get; set; } = "VND";
         public string vnp_Locale { get; set; } = "vn";
         public string vnp_ReturnUrl { get; set; } = default!;
+        public string? PublicBaseUrl { get; set; }
         public string TimeZoneId { get; set; } = "SE Asia Standard Time";
         public int ExpireMinutes { get; set; } = 15;
     }

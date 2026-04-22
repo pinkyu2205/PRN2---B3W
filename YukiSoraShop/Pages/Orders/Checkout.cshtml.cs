@@ -4,6 +4,8 @@ using Application;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
+using Infrastructure.Payments.Options;
 using System.Security.Claims;
 
 namespace YukiSoraShop.Pages.Orders
@@ -14,12 +16,14 @@ namespace YukiSoraShop.Pages.Orders
         private readonly IPaymentOrchestrator _payment;
         private readonly IUnitOfWork _uow;
         private readonly ILogger<OrdersCheckoutModel> _logger;
+        private readonly VnPayOptions _vnPayOptions;
 
-        public OrdersCheckoutModel(IPaymentOrchestrator payment, IUnitOfWork uow, ILogger<OrdersCheckoutModel> logger)
+        public OrdersCheckoutModel(IPaymentOrchestrator payment, IUnitOfWork uow, ILogger<OrdersCheckoutModel> logger, IOptions<VnPayOptions> vnPayOptions)
         {
             _payment = payment;
             _uow = uow;
             _logger = logger;
+            _vnPayOptions = vnPayOptions.Value;
         }
 
         [BindProperty(SupportsGet = true)]
@@ -63,6 +67,11 @@ namespace YukiSoraShop.Pages.Orders
             {
                 TempData["Error"] = "Phương thức VNPay hiện không khả dụng. Vui lòng chọn phương thức khác.";
                 return RedirectToPage("/Orders/PaymentMethod", new { OrderId });
+            }
+
+            if (IsLocalhostRequest() && !HasPublicVnPayReturnUrl())
+            {
+                TempData["Warning"] = "Bạn đang thanh toán VNPay từ localhost. Nếu môi trường sandbox không callback được, hãy cấu hình VNPay:PublicBaseUrl bằng URL HTTPS public như ngrok hoặc cloudflared.";
             }
 
             GrandTotal = order.GrandTotal ?? (order.Subtotal + order.ShippingFee);
@@ -114,6 +123,7 @@ namespace YukiSoraShop.Pages.Orders
                     BankCode = string.IsNullOrWhiteSpace(BankCode) ? null : BankCode,
                     ClientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1",
                     OrderDescription = $"Thanh toan don hang #{OrderId}",
+                    ReturnUrl = BuildVnPayReturnUrl(),
                     OrderTypeCode = OrderTypeCode
                 };
 
@@ -141,6 +151,47 @@ namespace YukiSoraShop.Pages.Orders
         {
             var method = await _uow.PaymentMethodRepository.FindOneAsync(pm => pm.Name == "VNPay");
             return method?.IsActive ?? false;
+        }
+
+        private string BuildVnPayReturnUrl()
+        {
+            if (!string.IsNullOrWhiteSpace(_vnPayOptions.PublicBaseUrl))
+            {
+                return $"{_vnPayOptions.PublicBaseUrl.TrimEnd('/')}/Orders/PaymentCallback";
+            }
+
+            if (!IsLocalUrl(_vnPayOptions.vnp_ReturnUrl))
+            {
+                return _vnPayOptions.vnp_ReturnUrl;
+            }
+
+            return Url.Page("/Orders/PaymentCallback", null, values: null, protocol: Request.Scheme, host: Request.Host.ToString())!;
+        }
+
+        private bool HasPublicVnPayReturnUrl()
+        {
+            return !string.IsNullOrWhiteSpace(_vnPayOptions.PublicBaseUrl)
+                || !IsLocalUrl(_vnPayOptions.vnp_ReturnUrl);
+        }
+
+        private static bool IsLocalUrl(string? url)
+        {
+            if (string.IsNullOrWhiteSpace(url) || !Uri.TryCreate(url, UriKind.Absolute, out var uri))
+            {
+                return true;
+            }
+
+            return string.Equals(uri.Host, "localhost", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(uri.Host, "127.0.0.1", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(uri.Host, "::1", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool IsLocalhostRequest()
+        {
+            var host = Request.Host.Host;
+            return string.Equals(host, "localhost", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(host, "127.0.0.1", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(host, "::1", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

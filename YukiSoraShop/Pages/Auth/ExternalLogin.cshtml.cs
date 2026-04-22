@@ -47,7 +47,7 @@ namespace YukiSoraShop.Pages.Auth
             if (remoteError != null)
             {
                 _logger.LogWarning("External login error: {Error}", remoteError);
-                TempData["ErrorMessage"] = $"L?i t? nh� cung c?p: {remoteError}";
+                TempData["Error"] = $"Lỗi từ nhà cung cấp: {remoteError}";
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
@@ -56,7 +56,7 @@ namespace YukiSoraShop.Pages.Auth
             if (info?.Principal == null)
             {
                 _logger.LogWarning("Unable to load external login info");
-                TempData["ErrorMessage"] = "Kh�ng th? t?i th�ng tin ??ng nh?p t? Google.";
+                TempData["Error"] = "Không thể tải thông tin đăng nhập từ Google.";
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
@@ -71,7 +71,7 @@ namespace YukiSoraShop.Pages.Auth
                 if (string.IsNullOrEmpty(email))
                 {
                     _logger.LogWarning("Email claim not found in external login");
-                    TempData["ErrorMessage"] = "Kh�ng th? l?y email t? t�i kho?n Google.";
+                    TempData["Error"] = "Không thể lấy email từ tài khoản Google.";
                     return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
                 }
 
@@ -86,7 +86,7 @@ namespace YukiSoraShop.Pages.Auth
                 if (account == null)
                 {
                     _logger.LogError("Failed to process external login for {Email}", email);
-                    TempData["ErrorMessage"] = "Kh�ng th? t?o ho?c c?p nh?t t�i kho?n.";
+                    TempData["Error"] = "Không thể tạo hoặc cập nhật tài khoản.";
                     return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
                 }
 
@@ -125,14 +125,24 @@ namespace YukiSoraShop.Pages.Auth
                 });
 
                 _logger.LogInformation("User {Email} logged in with {Provider}", email, provider);
-                TempData["SuccessMessage"] = $"??ng nh?p th�nh c�ng v?i {provider}!";
+                TempData["SuccessMessage"] = $"Đăng nhập thành công với {provider}!";
+
+                if (string.Equals(roleName, "Administrator", StringComparison.OrdinalIgnoreCase))
+                {
+                    return RedirectToPage("/Admin/Dashboard");
+                }
+
+                if (string.Equals(roleName, "Moderator", StringComparison.OrdinalIgnoreCase))
+                {
+                    return RedirectToPage("/Staff/Products/List");
+                }
 
                 return LocalRedirect(returnUrl);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing external login callback");
-                TempData["ErrorMessage"] = "?� x?y ra l?i trong qu� tr�nh ??ng nh?p. Vui l�ng th? l?i.";
+                TempData["Error"] = "Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại.";
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
         }

@@ -14,11 +14,13 @@ public class CartServiceTests
     private readonly Mock<IUnitOfWork> _uow = new();
     private readonly Mock<ICartRepository> _cartRepo = new();
     private readonly Mock<ICartItemRepository> _cartItemRepo = new();
+    private readonly Mock<IProductRepository> _productRepo = new();
 
     public CartServiceTests()
     {
         _uow.SetupGet(u => u.CartRepository).Returns(_cartRepo.Object);
         _uow.SetupGet(u => u.CartItemRepository).Returns(_cartItemRepo.Object);
+        _uow.SetupGet(u => u.ProductRepository).Returns(_productRepo.Object);
         _uow.Setup(u => u.SaveChangesAsync()).ReturnsAsync(1);
     }
 
@@ -74,6 +76,9 @@ public class CartServiceTests
         _cartRepo
             .Setup(r => r.FindOneAsync(It.IsAny<System.Linq.Expressions.Expression<System.Func<Cart, bool>>>(), "CartItems,CartItems.Product"))
             .ReturnsAsync(cart);
+        _productRepo
+            .Setup(r => r.GetByIdAsync(100))
+            .ReturnsAsync(new Product { Id = 100, ProductName = "Keyboard", Price = 250000m });
 
         var cartService = new CartService(_uow.Object);
 

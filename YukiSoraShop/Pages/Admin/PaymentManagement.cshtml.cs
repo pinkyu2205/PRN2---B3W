@@ -1,5 +1,6 @@
-using Application.Payments.DTOs;
+﻿using Application.Payments.DTOs;
 using Application.Payments.Interfaces;
+using Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -19,33 +20,51 @@ namespace YukiSoraShop.Pages.Admin
         }
 
         public List<PaymentHistoryDto> Payments { get; set; } = new();
-        
+
         [BindProperty(SupportsGet = true)]
         public int PageNumber { get; set; } = 1;
-        
+
         [BindProperty(SupportsGet = true)]
         public int PageSize { get; set; } = 50;
 
+        [BindProperty(SupportsGet = true)]
+        public string? Search { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public string? Method { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public PaymentStatus? Status { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public int? OrderId { get; set; }
+
         public int TotalPayments => Payments.Count;
-        public int PaidCount => Payments.Count(p => p.Status == Domain.Enums.PaymentStatus.Paid);
-        public int PendingCount => Payments.Count(p => p.Status == Domain.Enums.PaymentStatus.Pending);
-        public int CanceledCount => Payments.Count(p => p.Status == Domain.Enums.PaymentStatus.Canceled);
-        public decimal TotalRevenue => Payments.Where(p => p.Status == Domain.Enums.PaymentStatus.Paid).Sum(p => p.Amount);
+        public int PaidCount => Payments.Count(p => p.Status == PaymentStatus.Paid);
+        public int PendingCount => Payments.Count(p => p.Status == PaymentStatus.Pending);
+        public int CanceledCount => Payments.Count(p => p.Status == PaymentStatus.Canceled);
+        public decimal TotalRevenue => Payments.Where(p => p.Status == PaymentStatus.Paid).Sum(p => p.Amount);
 
         public async Task<IActionResult> OnGetAsync()
         {
             try
             {
                 _logger.LogInformation("Loading payment history for admin - Page: {Page}, Size: {Size}", PageNumber, PageSize);
-                
-                Payments = await _paymentHistoryService.GetAllPaymentHistoryAsync(PageNumber, PageSize);
-                
+
+                Payments = await _paymentHistoryService.GetAllPaymentHistoryAsync(
+                    pageNumber: PageNumber,
+                    pageSize: PageSize,
+                    search: Search,
+                    method: Method,
+                    status: Status,
+                    orderId: OrderId);
+
                 _logger.LogInformation("Loaded {Count} payments for admin view", Payments.Count);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading payment history for admin");
-                TempData["ErrorMessage"] = "Kh�ng th? t?i danh s�ch thanh to�n. Vui l�ng th? l?i.";
+                TempData["Error"] = "Không thể tải danh sách thanh toán. Vui lòng thử lại.";
                 Payments = new List<PaymentHistoryDto>();
             }
 
@@ -57,13 +76,13 @@ namespace YukiSoraShop.Pages.Admin
             try
             {
                 _logger.LogInformation("Loading payment detail for ID {PaymentId}", id);
-                
+
                 var payment = await _paymentHistoryService.GetPaymentByIdAsync(id);
-                
+
                 if (payment == null)
                 {
                     _logger.LogWarning("Payment {PaymentId} not found", id);
-                    return NotFound(new { error = "Kh�ng t�m th?y giao d?ch" });
+                    return NotFound(new { error = "Không tìm thấy giao dịch" });
                 }
 
                 return new JsonResult(payment);
@@ -71,7 +90,7 @@ namespace YukiSoraShop.Pages.Admin
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading payment detail for ID {PaymentId}", id);
-                return BadRequest(new { error = "Kh�ng th? t?i chi ti?t thanh to�n" });
+                return BadRequest(new { error = "Không thể tải chi tiết thanh toán" });
             }
         }
     }
