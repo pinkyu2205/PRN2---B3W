@@ -201,6 +201,12 @@ namespace YukiSoraShop.Pages.Orders
                 }
             }
 
+            if (EqualsName(SelectedMethod, "SePay"))
+            {
+                _logger.LogInformation("Redirecting to SePay Checkout for Order {OrderId}", OrderId);
+                return RedirectToPage("/Orders/SePayCheckout", new { OrderId });
+            }
+
             if (!EqualsName(SelectedMethod, "VNPay"))
             {
                 _logger.LogWarning("Unsupported payment method: {Method}", SelectedMethod);

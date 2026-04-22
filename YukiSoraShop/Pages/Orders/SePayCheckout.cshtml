@@ -1,0 +1,76 @@
+@page "{OrderId:int}"
+@model YukiSoraShop.Pages.Orders.SePayCheckoutModel
+@{
+    ViewData["Title"] = "Thanh toán qua SePay VietQR";
+    var qrUrl = $"https://qr.sepay.vn/img?acc={Model.BankAccount}&bank={Model.BankName}&amount={Model.GrandTotal}&des=YUKI{Model.OrderId}";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="bg-primary text-white p-4 text-center">
+                    <h4 class="mb-0 fw-bold"><i class="fas fa-qrcode me-2"></i>Quét mã thanh toán</h4>
+                    <p class="mb-0 mt-2 opacity-75">Sử dụng ứng dụng ngân hàng của bạn để quét mã</p>
+                </div>
+                
+                <div class="card-body p-4 p-md-5 text-center bg-white">
+                    <div class="mb-4">
+                        <span class="badge bg-light text-dark border px-3 py-2 fs-6 mb-3">Mã đơn hàng: #@Model.OrderId</span>
+                        <h2 class="text-primary fw-bold mb-0">@Model.GrandTotal.ToString("N0") VNĐ</h2>
+                    </div>
+
+                    <div class="qr-container bg-light p-3 rounded-4 d-inline-block border mb-4 position-relative">
+                        <img src="@qrUrl" alt="VietQR" class="img-fluid" style="max-width: 300px;" />
+                    </div>
+
+                    <div class="alert alert-info border-0 bg-info bg-opacity-10 text-start">
+                        <h6 class="fw-bold mb-2"><i class="fas fa-info-circle me-2"></i>Hướng dẫn thanh toán</h6>
+                        <ol class="mb-0 small ps-3">
+                            <li class="mb-1">Mở ứng dụng Mobile Banking của bạn</li>
+                            <li class="mb-1">Chọn tính năng Quét mã QR</li>
+                            <li class="mb-1">Quét mã QR phía trên</li>
+                            <li>Hệ thống sẽ tự động xác nhận đơn hàng ngay khi nhận được thanh toán.</li>
+                        </ol>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="d-flex align-items-center justify-content-center text-muted small">
+                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                            <span>Đang chờ thanh toán... Không đóng trình duyệt</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light p-3 text-center border-top-0">
+                    <a asp-page="/Customer/MyOrders" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-2"></i>Quay lại đơn hàng</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Use the existing SignalR connection from realtime-notification.js
+        // The event triggered by the Webhook is ReceiveOverviewUpdate
+        if (window.notificationConnection) {
+            window.notificationConnection.on("ReceiveOverviewUpdate", function (orderId, newStatus) {
+                if (orderId === parseInt("@Model.OrderId") && (newStatus === "PAID" || newStatus === "Completed")) {
+                    // Cập nhật giao diện thanh toán thành công
+                    document.querySelector('.card-body').innerHTML = `
+                        <div class="py-5 text-center fade-in">
+                            <div class="mb-4">
+                                <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+                            </div>
+                            <h3 class="fw-bold text-success mb-3">Thanh toán thành công!</h3>
+                            <p class="text-muted mb-4">Cảm ơn bạn đã mua sắm tại YukiSora. Đơn hàng của bạn đang được xử lý.</p>
+                            <a href="/Customer/MyOrders" class="btn btn-primary px-4 py-2 fw-semibold">
+                                <i class="fas fa-box-open me-2"></i>Xem tiến độ đơn hàng
+                            </a>
+                        </div>
+                    `;
+                }
+            });
+        }
+    </script>
+}
