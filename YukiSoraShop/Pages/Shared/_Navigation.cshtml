@@ -28,9 +28,9 @@
 }
 
 <!-- LEFT NAVIGATION -->
-<ul class="navbar-nav me-auto">
+<ul class="navbar-nav me-auto align-items-lg-center site-nav-group">
     <li class="nav-item">
-        <a class="nav-link fw-semibold text-primary" asp-page="/Customer/Catalog">
+        <a class="nav-link fw-semibold site-nav-link" asp-page="/Customer/Catalog">
             <i class="fas fa-store me-1"></i> Mua sắm
         </a>
     </li>
@@ -41,10 +41,10 @@
         {
             <!-- ADMIN MENU -->
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown">
+                <a class="nav-link dropdown-toggle fw-semibold site-nav-link" href="#" role="button" data-bs-toggle="dropdown">
                     <i class="fas fa-cogs me-1"></i> Quản trị hệ thống
                 </a>
-                <ul class="dropdown-menu shadow-sm">
+                <ul class="dropdown-menu shadow-sm site-dropdown-menu">
                     <li><a class="dropdown-item" asp-page="/Admin/Dashboard"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a></li>
                     <li><a class="dropdown-item" asp-page="/Admin/AccountManagement"><i class="fas fa-users-cog me-2"></i> Quản lý tài khoản</a></li>
                     <li><a class="dropdown-item" asp-page="/Admin/PaymentMethods"><i class="fas fa-credit-card me-2"></i> Phương thức thanh toán</a></li>
@@ -58,10 +58,10 @@
         {
             <!-- STAFF MENU -->
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown">
+                <a class="nav-link dropdown-toggle fw-semibold site-nav-link" href="#" role="button" data-bs-toggle="dropdown">
                     <i class="fas fa-box me-1"></i> Quản lý sản phẩm
                 </a>
-                <ul class="dropdown-menu shadow-sm">
+                <ul class="dropdown-menu shadow-sm site-dropdown-menu">
                     <li><a class="dropdown-item" asp-page="/Staff/Products/List"><i class="fas fa-list me-2"></i> Danh sách sản phẩm</a></li>
                     <li><a class="dropdown-item" asp-page="/Staff/Products/Create"><i class="fas fa-plus me-2"></i> Thêm sản phẩm</a></li>
                     <li><a class="dropdown-item" asp-page="/Staff/Categories/List"><i class="fas fa-tags me-2"></i> Danh mục</a></li>
@@ -72,22 +72,22 @@
         {
             <!-- CUSTOMER MENU -->
             <li class="nav-item">
-                <a class="nav-link fw-semibold" asp-page="/Customer/Catalog">
+                <a class="nav-link fw-semibold site-nav-link" asp-page="/Customer/Catalog">
                     <i class="fas fa-laptop me-1"></i> Sản phẩm
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link fw-semibold" href="/Customer/Catalog#catalog-intro">
+                <a class="nav-link fw-semibold site-nav-link" href="/Customer/Catalog#catalog-intro">
                     <i class="fas fa-info-circle me-1"></i> Giới thiệu
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link fw-semibold" href="/Customer/Catalog#catalog-contact">
+                <a class="nav-link fw-semibold site-nav-link" href="/Customer/Catalog#catalog-contact">
                     <i class="fas fa-headset me-1"></i> Liên hệ
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link fw-semibold" asp-page="/Customer/RegisterShop">
+                <a class="nav-link fw-semibold site-nav-link site-nav-link-accent" asp-page="/Customer/RegisterShop">
                     <i class="fas fa-store me-1"></i> Đăng ký Shop
                 </a>
             </li>
@@ -97,27 +97,27 @@
     {
         <!-- Guest menu -->
         <li class="nav-item">
-            <a class="nav-link fw-semibold" asp-page="/Customer/Catalog"><i class="fas fa-store me-1"></i> Sản phẩm</a>
+            <a class="nav-link fw-semibold site-nav-link" asp-page="/Customer/Catalog"><i class="fas fa-store me-1"></i> Sản phẩm</a>
         </li>
     }
 </ul>
 
 <!-- RIGHT NAVIGATION -->
-<ul class="navbar-nav align-items-center">
+<ul class="navbar-nav align-items-center site-nav-group site-nav-actions">
 
     @if (!isAuthenticated)
     {
         <li class="nav-item">
-            <a class="nav-link fw-semibold" asp-page="/Auth/Login"><i class="fas fa-sign-in-alt me-1"></i> Đăng nhập</a>
+            <a class="nav-link fw-semibold site-nav-link" asp-page="/Auth/Login"><i class="fas fa-sign-in-alt me-1"></i> Đăng nhập</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link fw-semibold" asp-page="/Auth/Register"><i class="fas fa-user-plus me-1"></i> Đăng ký</a>
+            <a class="nav-link fw-semibold site-nav-button" asp-page="/Auth/Register"><i class="fas fa-user-plus me-1"></i> Đăng ký</a>
         </li>
     }
     else
     {
         <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown">
+            <a class="nav-link dropdown-toggle fw-semibold site-nav-link" href="#" role="button" data-bs-toggle="dropdown">
                 <i class="fas fa-user-circle me-1"></i> @userName
                 @if (isAdmin)
                 {
@@ -132,7 +132,7 @@
                     <span class="badge bg-success ms-1">User</span>
                 }
             </a>
-            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm site-dropdown-menu">
                 @if (!isAdmin && !isStaff)
                 {
                     <li><a class="dropdown-item" asp-page="/Customer/Profile"><i class="fas fa-user me-2"></i> Hồ sơ cá nhân</a></li>
@@ -154,7 +154,7 @@
         @if (!isAdmin && !isStaff)
         {
             <li class="nav-item ms-2">
-                <a class="nav-link fw-semibold position-relative" asp-page="/Customer/Cart">
+                <a class="nav-link fw-semibold position-relative site-nav-button site-nav-cart" asp-page="/Customer/Cart">
                     <i class="fas fa-shopping-cart"></i>
                     @if (cartCount > 0)
                     {

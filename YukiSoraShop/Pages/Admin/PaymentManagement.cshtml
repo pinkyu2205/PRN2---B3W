@@ -38,8 +38,8 @@
 
 <form method="get" class="toolbar mb-4">
     <div class="toolbar-filters">
-        <input type="text" class="form-control form-control-sm" name="search" value="@Model.Search" placeholder="Tìm theo Order ID, Payment ID, mã giao dịch..." style="max-width: 320px;">
-        <input type="number" class="form-control form-control-sm" name="orderId" value="@Model.OrderId" placeholder="Lọc theo Order ID" min="1" style="max-width: 160px;">
+        <input type="text" class="form-control form-control-sm" name="search" value="@Model.Search" placeholder="Tìm theo mã đơn, mã thanh toán, mã giao dịch..." style="max-width: 320px;">
+        <input type="number" class="form-control form-control-sm" name="orderId" value="@Model.OrderId" placeholder="Lọc theo mã đơn" min="1" style="max-width: 160px;">
         <select class="form-select form-select-sm" name="method" style="max-width: 170px;">
             <option value="">-- Phương thức --</option>
             <option value="VNPay" selected="@(Model.Method == "VNPay")">VNPay</option>
@@ -79,7 +79,7 @@
                         <tr>
                             <th style="width: 80px;">ID</th>
                             <th style="width: 160px;">Mã giao dịch</th>
-                            <th style="width: 110px;">Order ID</th>
+                            <th style="width: 110px;">Mã đơn</th>
                             <th style="width: 120px;">Phương thức</th>
                             <th style="width: 140px;" class="text-end">Số tiền</th>
                             <th style="width: 120px;">Trạng thái</th>
@@ -220,7 +220,7 @@
                                     <p class="mb-3"><code>${payment.transactionRef || 'Không có'}</code></p>
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-group-label">Order ID</label>
+                                    <label class="form-group-label">Mã đơn hàng</label>
                                     <p class="mb-0"><strong>#${payment.orderId}</strong></p>
                                 </div>
                             </div>

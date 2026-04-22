@@ -56,7 +56,7 @@
                 </div>
             </div>
 
-            <h3 id="product-price" class="text-danger fw-bold my-3">
+            <h3 id="product-price" class="fw-bold my-3" style="color: var(--color-text-strong, #111111);">
                 @Model.Product.Price.ToString("N0") VNĐ
             </h3>
 
@@ -200,21 +200,7 @@
 }
 
 <style>
-    .btn-gradient {
-        background: #111827;
-        border: none;
-        color: #fff;
-        transition: all .2s ease;
-        border-radius: 8px;
-    }
-    .btn-gradient:hover { background: #374151; color: #fff; }
-    .btn-buy-now {
-        background: #2563EB;
-        border: none;
-        color: #fff;
-        border-radius: 8px;
-    }
-    .btn-buy-now:hover { background: #1D4ED8; color: #fff; transform: translateY(-1px); }
     .thumb-image { transition: transform .2s ease; }
-    .thumb-image:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,.08); }
+    .thumb-image:hover { transform: translateY(-3px); box-shadow: var(--shadow-sm, 0 2px 12px rgba(0,0,0,.06)); }
+    .variant-btn.active { background: var(--color-primary, #111); color: #fff; border-color: var(--color-primary, #111); }
 </style>

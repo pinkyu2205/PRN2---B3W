@@ -36,7 +36,7 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="width: 80px;">Order ID</th>
+                            <th style="width: 80px;">Mã đơn</th>
                             <th style="width: 180px;">Khách hàng</th>
                             <th style="width: 130px;">Ngày tạo</th>
                             <th style="width: 120px;" class="text-end">Tổng tiền</th>
@@ -102,16 +102,5 @@
             if (isNaN(date.getTime())) return value;
             return date.toLocaleString("vi-VN");
         }
-    </script>
-}
-
-            connection.on("DashboardSummaryUpdated", applyDashboardSummary);
-            connection.on("CashOrderRemoved", removeCashRow);
-            connection.on("CashOrderAdded", renderCashRow);
-
-            toggleEmptyState();
-
-            connection.start().catch(err => console.error("SignalR connection error:", err));
-        })();
     </script>
 }

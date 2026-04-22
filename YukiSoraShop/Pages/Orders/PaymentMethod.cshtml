@@ -127,18 +127,15 @@
 </div>
 
 <style>
-    .bg-gradient-primary { background: #111827; }
-    .btn-gradient { background: #2563EB; color:#fff; border:none; border-radius: 8px; }
-    .btn-gradient:hover { background: #1D4ED8; color:#fff; transform: translateY(-1px); }
-    .payment-option { transition: all .25s ease; }
-    .payment-option.active { border:2px solid #1976d2; box-shadow:0 0 0 4px rgba(25,118,210,.15); }
+    .payment-option { transition: all .25s ease; border: 2px solid transparent; }
+    .payment-option.active { border-color: var(--color-primary, #111); box-shadow: 0 0 0 3px rgba(17,17,17,.1); }
     .payment-option:hover { transform: translateY(-4px); }
     .indicator { opacity:0; transition: .25s; font-size:1.25rem; }
     .payment-option.active .indicator { opacity:1; }
     .step-indicator .step { display:flex; flex-direction:column; align-items:center; gap:4px; }
-    .step-indicator .step span { width:42px; height:42px; background:#e0e7ff; display:flex; align-items:center; justify-content:center; border-radius:50%; font-weight:600; font-size:1.1rem; }
-    .step-indicator .step.active span { background: #2563EB; color:#fff; box-shadow:0 6px 16px rgba(0,0,0,.1); }
-    .step-indicator .line { flex:1; height:4px; background:#e0e7ff; margin:0 12px; border-radius:10px; align-self:center; }
+    .step-indicator .step span { width:42px; height:42px; background: var(--color-bg-secondary, #f7f7f7); display:flex; align-items:center; justify-content:center; border-radius:50%; font-weight:600; font-size:1.1rem; border: 1px solid var(--color-border, #e5e5e5); }
+    .step-indicator .step.active span { background: var(--color-primary, #111); color:#fff; box-shadow: var(--shadow-sm, 0 2px 12px rgba(0,0,0,.06)); }
+    .step-indicator .line { flex:1; height:3px; background: var(--color-border, #e5e5e5); margin:0 12px; border-radius:10px; align-self:center; }
 </style>
 
 @section Scripts {

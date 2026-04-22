@@ -8,10 +8,11 @@
 <div class="container-fluid min-vh-100 d-flex align-items-center">
     <div class="row w-100">
         <!-- Left side - Branding -->
-        <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center">
-            <div class="auth-content text-center">
-                <h2 class="text-white mb-4" style="font-size: 4rem; font-weight: 800;">YukiSora Shop</h2>
-                <p class="text-white" style="font-size: 1.3rem; font-weight: 300;">Khám phá thế giới điện thoại thông minh hiện đại và tiện ích</p>
+        <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center auth-brand-left">
+            <div class="text-center px-4">
+                <div class="brand-mark mx-auto mb-4" style="width: 4rem; height: 4rem; font-size: 1.5rem;"><i class="fas fa-bolt"></i></div>
+                <h2 class="mb-3" style="font-size: 3rem; font-weight: 800; color: #ffffff; letter-spacing: -0.05em;">YukiSora Shop</h2>
+                <p style="font-size: 1.1rem; color: rgba(255,255,255,0.72); line-height: 1.7; max-width: 28rem;">Khám phá thế giới điện thoại thông minh hiện đại và tiện ích công nghệ dành cho cuộc sống số.</p>
             </div>
         </div>
 
@@ -33,7 +34,7 @@
                                     <div class="d-flex align-items-center">
                                         <i class="fas fa-check-circle me-3" style="font-size: 1.5rem;"></i>
                                         <div>
-                                            <strong>Success!</strong> @TempData["SuccessMessage"]
+                                            <strong>Thành công!</strong> @TempData["SuccessMessage"]
                                         </div>
                                     </div>
                                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -46,7 +47,7 @@
                                     <div class="d-flex align-items-center">
                                         <i class="fas fa-exclamation-circle me-3" style="font-size: 1.5rem;"></i>
                                         <div>
-                                            <strong>Error!</strong> @TempData["ErrorMessage"]
+                                            <strong>Lỗi!</strong> @TempData["ErrorMessage"]
                                         </div>
                                     </div>
                                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>

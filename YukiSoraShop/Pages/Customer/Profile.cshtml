@@ -1,7 +1,7 @@
 ﻿@page
 @model YukiSoraShop.Pages.Customer.CustomerProfileModel
 @{
-    ViewData["Title"] = "Profile";
+    ViewData["Title"] = "Hồ sơ cá nhân";
 }
 
 @if (TempData["SuccessMessage"] != null)
@@ -10,7 +10,7 @@
         <div class="d-flex align-items-center">
             <i class="fas fa-check-circle me-3" style="font-size: 1.5rem;"></i>
             <div>
-                <strong>Success!</strong> @TempData["SuccessMessage"]
+                <strong>Thành công!</strong> @TempData["SuccessMessage"]
             </div>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -20,7 +20,7 @@
 <div class="row">
     <div class="col-12">
         <h1 class="mb-4">
-            <i class="fas fa-user text-primary"></i> User Profile
+            <i class="fas fa-user text-primary"></i> Hồ sơ cá nhân
         </h1>
     </div>
 </div>
@@ -51,12 +51,12 @@
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">
-                        <i class="fas fa-info-circle"></i> Personal Information
+                        <i class="fas fa-info-circle"></i> Thông tin cá nhân
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
-                        <div class="col-sm-4"><strong>Full Name:</strong></div>
+                        <div class="col-sm-4"><strong>Họ và tên:</strong></div>
                         <div class="col-sm-8">@Model.CurrentUser.FullName</div>
                     </div>
                     <div class="row mb-3">
@@ -66,35 +66,35 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-sm-4"><strong>Phone Number:</strong></div>
+                        <div class="col-sm-4"><strong>Số điện thoại:</strong></div>
                         <div class="col-sm-8">
                             <i class="fas fa-phone text-success"></i> @Model.CurrentUser.PhoneNumber
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-sm-4"><strong>Address:</strong></div>
+                        <div class="col-sm-4"><strong>Địa chỉ:</strong></div>
                         <div class="col-sm-8">
                             <i class="fas fa-map-marker-alt text-danger"></i> @Model.CurrentUser.Address
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-sm-4"><strong>Date of Birth:</strong></div>
+                        <div class="col-sm-4"><strong>Ngày sinh:</strong></div>
                         <div class="col-sm-8">
                             <i class="fas fa-birthday-cake text-warning"></i> @Model.CurrentUser.DateOfBirth.ToString("dd/MM/yyyy")
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-sm-4"><strong>Gender:</strong></div>
+                        <div class="col-sm-4"><strong>Giới tính:</strong></div>
                         <div class="col-sm-8">
-                            <i class="fas fa-venus-mars text-secondary"></i> @(string.IsNullOrWhiteSpace(Model.CurrentUser.Gender) ? "N/A" : Model.CurrentUser.Gender)
+                            <i class="fas fa-venus-mars text-secondary"></i> @(string.IsNullOrWhiteSpace(Model.CurrentUser.Gender) ? "Chưa cập nhật" : Model.CurrentUser.Gender)
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-sm-4"><strong>Username:</strong></div>
+                        <div class="col-sm-4"><strong>Tên đăng nhập:</strong></div>
                         <div class="col-sm-8">@Model.CurrentUser.Username</div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-sm-4"><strong>Member Since:</strong></div>
+                        <div class="col-sm-4"><strong>Thành viên từ:</strong></div>
                         <div class="col-sm-8">
                             <i class="fas fa-calendar-alt text-info"></i> @Model.CurrentUser.CreatedAt.ToString("dd/MM/yyyy")
                         </div>
@@ -105,20 +105,20 @@
             <div class="card mt-4">
                 <div class="card-header">
                     <h5 class="mb-0">
-                        <i class="fas fa-cogs"></i> Quick Actions
+                        <i class="fas fa-cogs"></i> Thao tác nhanh
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="d-flex gap-2 flex-wrap">
                         <a href="/Customer/EditProfile" class="btn btn-outline-secondary">
-                            <i class="fas fa-edit"></i> Edit Profile
+                            <i class="fas fa-edit"></i> Chỉnh sửa hồ sơ
                         </a>
                         <a href="/Auth/ChangePassword" class="btn btn-outline-info">
-                            <i class="fas fa-key"></i> Change Password
+                            <i class="fas fa-key"></i> Đổi mật khẩu
                         </a>
                         <form asp-page="/Auth/Logout" method="post" class="d-inline">
                             <button type="submit" class="btn btn-outline-danger">
-                                <i class="fas fa-sign-out-alt"></i> Logout
+                                <i class="fas fa-sign-out-alt"></i> Đăng xuất
                             </button>
                         </form>
                     </div>
@@ -130,14 +130,14 @@
 else
 {
     <div class="alert alert-warning" role="alert">
-        <h4 class="alert-heading">Please Login!</h4>
-        <p>You need to login to view your profile.</p>
+        <h4 class="alert-heading">Vui lòng đăng nhập!</h4>
+        <p>Bạn cần đăng nhập để xem hồ sơ cá nhân.</p>
         <hr>
         <a href="/Auth/Login" class="btn btn-primary">
-            <i class="fas fa-sign-in-alt"></i> Login Now
+            <i class="fas fa-sign-in-alt"></i> Đăng nhập ngay
         </a>
         <a href="/Auth/Register" class="btn btn-outline-primary ms-2">
-            <i class="fas fa-user-plus"></i> Register
+            <i class="fas fa-user-plus"></i> Đăng ký
         </a>
     </div>
 }
