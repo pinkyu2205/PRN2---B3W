@@ -61,6 +61,7 @@ namespace Infrastructure.Payments.Providers
                     clientIp: ip,
                     bankCode: command.BankCode,
                     orderDesc: command.OrderDescription,
+                    returnUrl: command.ReturnUrl,
                     orderTypeCode: command.OrderTypeCode,
                     ct: ct
                 );

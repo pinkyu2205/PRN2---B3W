@@ -1,11 +1,10 @@
+﻿using Application.DTOs;
+using Application.DTOs.Pagination;
 using Application.Services.Interfaces;
-using Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
-using Application.DTOs.Pagination;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Security.Claims;
 
 namespace YukiSoraShop.Pages.Customer
 {
@@ -57,13 +56,11 @@ namespace YukiSoraShop.Pages.Customer
                 var size = Size <= 0 ? 12 : Math.Min(Size, PaginationDefaults.MaxPageSize);
                 var page = Page <= 0 ? PaginationDefaults.DefaultPageNumber : Page;
 
-                // Load hot products
                 HotProducts = await _productService.GetHotProductsAsync(8);
 
-                // Load products with filters
                 var paged = await _productService.GetProductsPagedAsync(
                     page, size, Search, Category, MinPrice, MaxPrice, Sort);
-                
+
                 Products = paged.Items.ToList();
                 TotalPages = paged.TotalPages;
                 TotalItems = paged.TotalItems;
@@ -96,14 +93,19 @@ namespace YukiSoraShop.Pages.Customer
             }
         }
 
-        private int GetAccountIdFromUser()
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> OnPostAddToCart(int id, CancellationToken ct = default)
         {
-            var accountIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return int.TryParse(accountIdStr, out var accountId) ? accountId : 0;
+            return await AddProductToCartAsync(id, productDetailId: 0, redirectToCart: false, ct);
         }
 
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> OnPostAddToCart(int id, CancellationToken ct = default)
+        public async Task<IActionResult> OnPostBuyNowAsync(int id, int productDetailId = 0, CancellationToken ct = default)
+        {
+            return await AddProductToCartAsync(id, productDetailId, redirectToCart: true, ct);
+        }
+
+        private async Task<IActionResult> AddProductToCartAsync(int id, int productDetailId, bool redirectToCart, CancellationToken ct)
         {
             if (id <= 0)
             {
@@ -117,18 +119,17 @@ namespace YukiSoraShop.Pages.Customer
                 return RedirectToPage("/Auth/Login");
             }
 
-            // Role restrictions - Block Admin and Moderator
             if (User.IsInRole("Administrator"))
             {
                 _logger.LogWarning("Administrator account {AccountId} attempted to add product to cart", accountId);
-                TempData["Error"] = "Tài khoản quản trị không thể thêm sản phẩm vào giỏ hàng.";
+                TempData["Error"] = "Tài khoản quản trị không thể mua hàng.";
                 return RedirectToPage("/Customer/Catalog", new { Page, Size, Search, Category, Sort, MinPrice, MaxPrice });
             }
 
             if (User.IsInRole("Moderator"))
             {
                 _logger.LogWarning("Moderator account {AccountId} attempted to add product to cart", accountId);
-                TempData["Error"] = "Tài khoản nhân viên không thể thêm sản phẩm vào giỏ hàng.";
+                TempData["Error"] = "Tài khoản nhân viên không thể mua hàng.";
                 return RedirectToPage("/Customer/Catalog", new { Page, Size, Search, Category, Sort, MinPrice, MaxPrice });
             }
 
@@ -141,33 +142,48 @@ namespace YukiSoraShop.Pages.Customer
                     return RedirectToPage("/Customer/Catalog", new { Page, Size, Search, Category, Sort, MinPrice, MaxPrice });
                 }
 
-                // Check if product has variants
-                bool hasVariants = product.ProductDetails != null && product.ProductDetails.Any();
-
-                // If product has variants, redirect to details page to choose variant
-                if (hasVariants)
-                {
-                    TempData["Info"] = "Sản phẩm có nhiều biến thể. Vui lòng chọn biến thể trước khi thêm vào giỏ hàng.";
-                    return RedirectToPage("/Customer/ProductDetails", new { id });
-                }
-
-                // Product has NO variants - allow direct add to cart
-                // Check availability
                 if (!product.IsAvailable || product.Stock <= 0)
                 {
                     TempData["Error"] = "Sản phẩm tạm thời không có sẵn.";
                     return RedirectToPage("/Customer/Catalog", new { Page, Size, Search, Category, Sort, MinPrice, MaxPrice });
                 }
 
-                // Add to cart (price comes from product entity)
+                var hasVariants = product.ProductDetails != null && product.ProductDetails.Any();
+                ProductDetailDTO? selectedDetail = null;
+
+                if (hasVariants)
+                {
+                    if (productDetailId <= 0)
+                    {
+                        TempData["Info"] = "Sản phẩm có nhiều biến thể. Vui lòng chọn biến thể trước khi mua.";
+                        return RedirectToPage("/Customer/Catalog", new { Page, Size, Search, Category, Sort, MinPrice, MaxPrice });
+                    }
+
+                    selectedDetail = product.ProductDetails.FirstOrDefault(d => d.Id == productDetailId);
+                    if (selectedDetail == null)
+                    {
+                        TempData["Error"] = "Biến thể sản phẩm không hợp lệ.";
+                        return RedirectToPage("/Customer/Catalog", new { Page, Size, Search, Category, Sort, MinPrice, MaxPrice });
+                    }
+                }
+
                 await _cartService.AddItemAsync(accountId, id, 1, ct);
 
-                // Update cart count
                 var items = await _cartService.GetItemsAsync(accountId, ct);
                 TempData["CartCount"] = items?.Sum(i => i.Quantity) ?? 0;
 
+                var variantInfo = selectedDetail != null
+                    ? $" ({selectedDetail.Color}" + (!string.IsNullOrWhiteSpace(selectedDetail.Size) ? $" - {selectedDetail.Size}" : string.Empty) + ")"
+                    : string.Empty;
+
                 _logger.LogInformation("Product {ProductId} added to cart for account {AccountId}", id, accountId);
-                TempData["Success"] = $"Đã thêm \"{product.Name}\" vào giỏ hàng!";
+                TempData["Success"] = $"Đã thêm \"{product.Name}{variantInfo}\" vào giỏ hàng.";
+
+                if (redirectToCart)
+                {
+                    return RedirectToPage("/Customer/Cart");
+                }
+
                 return RedirectToPage("/Customer/Catalog", new { Page, Size, Search, Category, Sort, MinPrice, MaxPrice });
             }
             catch (Exception ex)
@@ -176,6 +192,12 @@ namespace YukiSoraShop.Pages.Customer
                 TempData["Error"] = "Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại sau.";
                 return RedirectToPage("/Customer/Catalog", new { Page, Size, Search, Category, Sort, MinPrice, MaxPrice });
             }
+        }
+
+        private int GetAccountIdFromUser()
+        {
+            var accountIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.TryParse(accountIdStr, out var accountId) ? accountId : 0;
         }
     }
 }

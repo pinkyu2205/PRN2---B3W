@@ -8,5 +8,6 @@ namespace Application.Payments.DTOs
         public string ClientIp { get; set; } = default!;
         public string? OrderDescription { get; set; }
         public string OrderTypeCode { get; set; } = "other";
+        public string? ReturnUrl { get; set; }
     }
 }

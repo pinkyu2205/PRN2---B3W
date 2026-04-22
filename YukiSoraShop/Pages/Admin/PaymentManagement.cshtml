@@ -1,216 +1,141 @@
-@page
+﻿@page
 @model YukiSoraShop.Pages.Admin.PaymentManagementModel
 @{
-    ViewData["Title"] = "Qu?n l� giao d?ch thanh to�n";
-    Layout = "~/Pages/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý thanh toán";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0">
-        <i class="fas fa-money-check-alt me-2 text-primary"></i> Qu?n l� giao d?ch thanh to�n
-    </h2>
-    <div>
-        <button class="btn btn-outline-primary me-2" onclick="window.location.reload()">
-            <i class="fas fa-sync-alt me-1"></i>L�m m?i
-        </button>
-        <a asp-page="/Admin/Dashboard" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-1"></i>Dashboard
-        </a>
+<div class="admin-page-header">
+    <div class="admin-page-header-left">
+        <h1>Quản lý thanh toán</h1>
+        <p>Theo dõi và quản lý toàn bộ giao dịch thanh toán của hệ thống.</p>
     </div>
 </div>
 
-@if (!string.IsNullOrEmpty(TempData["ErrorMessage"] as string))
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-}
+@await Html.PartialAsync("_Alerts")
 
-<!-- Stats Cards -->
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="bg-primary bg-opacity-10 rounded-circle p-3">
-                            <i class="fas fa-receipt fa-2x text-primary"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">T?ng giao d?ch</h6>
-                        <h3 class="fw-bold mb-0">@Model.TotalPayments</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="admin-dashboard-grid">
+    <div class="metric-tile">
+        <div class="metric-tile-label"><i class="fas fa-receipt me-2"></i>Tổng giao dịch</div>
+        <div class="metric-tile-value">@Model.TotalPayments</div>
+        <div class="metric-tile-change">Trang hiện tại</div>
     </div>
-    
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="bg-success bg-opacity-10 rounded-circle p-3">
-                            <i class="fas fa-check-circle fa-2x text-success"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Th�nh c�ng</h6>
-                        <h3 class="fw-bold text-success mb-0">@Model.PaidCount</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="metric-tile" style="border-color: var(--color-success);">
+        <div class="metric-tile-label"><i class="fas fa-check-circle me-2"></i>Thành công</div>
+        <div class="metric-tile-value" style="color: var(--color-success);">@Model.PaidCount</div>
+        <div class="metric-tile-change">Đã thanh toán</div>
     </div>
-    
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="bg-warning bg-opacity-10 rounded-circle p-3">
-                            <i class="fas fa-clock fa-2x text-warning"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Ch? x? l�</h6>
-                        <h3 class="fw-bold text-warning mb-0">@Model.PendingCount</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="metric-tile" style="border-color: var(--color-warning);">
+        <div class="metric-tile-label"><i class="fas fa-clock me-2"></i>Chờ xử lý</div>
+        <div class="metric-tile-value" style="color: var(--color-warning);">@Model.PendingCount</div>
+        <div class="metric-tile-change">Đang chờ</div>
     </div>
-    
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="bg-success bg-opacity-10 rounded-circle p-3">
-                            <i class="fas fa-dollar-sign fa-2x text-success"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Doanh thu</h6>
-                        <h3 class="fw-bold text-success mb-0">
-                            @Model.TotalRevenue.ToString("N0") ?
-                        </h3>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="metric-tile" style="border-color: var(--color-success);">
+        <div class="metric-tile-label"><i class="fas fa-sack-dollar me-2"></i>Doanh thu</div>
+        <div class="metric-tile-value" style="color: var(--color-success);">@Model.TotalRevenue.ToString("N0")</div>
+        <div class="metric-tile-change">VNĐ</div>
     </div>
 </div>
 
-<!-- Payments Table -->
+<form method="get" class="toolbar mb-4">
+    <div class="toolbar-filters">
+        <input type="text" class="form-control form-control-sm" name="search" value="@Model.Search" placeholder="Tìm theo Order ID, Payment ID, mã giao dịch..." style="max-width: 320px;">
+        <input type="number" class="form-control form-control-sm" name="orderId" value="@Model.OrderId" placeholder="Lọc theo Order ID" min="1" style="max-width: 160px;">
+        <select class="form-select form-select-sm" name="method" style="max-width: 170px;">
+            <option value="">-- Phương thức --</option>
+            <option value="VNPay" selected="@(Model.Method == "VNPay")">VNPay</option>
+            <option value="Cash" selected="@(Model.Method == "Cash")">Tiền mặt</option>
+        </select>
+        <select class="form-select form-select-sm" name="status" style="max-width: 170px;">
+            <option value="">-- Trạng thái --</option>
+            <option value="Paid" selected="@(Model.Status == Domain.Enums.PaymentStatus.Paid)">Đã thanh toán</option>
+            <option value="Pending" selected="@(Model.Status == Domain.Enums.PaymentStatus.Pending)">Đang chờ</option>
+            <option value="Canceled" selected="@(Model.Status == Domain.Enums.PaymentStatus.Canceled)">Đã hủy</option>
+            <option value="Refunded" selected="@(Model.Status == Domain.Enums.PaymentStatus.Refunded)">Hoàn tiền</option>
+        </select>
+        <input type="hidden" name="pageNumber" value="1" />
+        <input type="hidden" name="pageSize" value="@Model.PageSize" />
+    </div>
+    <div class="toolbar-actions">
+        <a class="btn btn-sm btn-outline-secondary" asp-page="/Admin/PaymentManagement"><i class="fas fa-rotate-left me-1"></i>Đặt lại</a>
+        <button class="btn btn-sm btn-primary" type="submit"><i class="fas fa-filter me-1"></i>Lọc</button>
+    </div>
+</form>
+
 <div class="card border-0 shadow-sm">
-    <div class="card-header bg-white border-0 py-3">
-        <h5 class="mb-0 fw-semibold">
-            <i class="fas fa-list text-primary me-2"></i>Danh s�ch giao d?ch
-        </h5>
-    </div>
     <div class="card-body p-0">
         @if (!Model.Payments.Any())
         {
-            <div class="alert alert-info m-3">
-                <i class="fas fa-info-circle me-2"></i>Ch?a c� giao d?ch n�o.
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="fas fa-inbox"></i></div>
+                <div class="empty-state-title">Chưa có giao dịch</div>
+                <div class="empty-state-message">Không tìm thấy giao dịch phù hợp với bộ lọc hiện tại.</div>
             </div>
         }
         else
         {
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
+                <table class="data-table">
+                    <thead>
                         <tr>
-                            <th style="width: 5%;">ID</th>
-                            <th style="width: 15%;">M� giao d?ch</th>
-                            <th style="width: 10%;">??n h�ng</th>
-                            <th style="width: 12%;">Ph??ng th?c</th>
-                            <th style="width: 12%;" class="text-end">S? ti?n</th>
-                            <th style="width: 12%;" class="text-center">Tr?ng th�i</th>
-                            <th style="width: 15%;">Ng�y t?o</th>
-                            <th style="width: 10%;" class="text-center">Thao t�c</th>
+                            <th style="width: 80px;">ID</th>
+                            <th style="width: 160px;">Mã giao dịch</th>
+                            <th style="width: 110px;">Order ID</th>
+                            <th style="width: 120px;">Phương thức</th>
+                            <th style="width: 140px;" class="text-end">Số tiền</th>
+                            <th style="width: 120px;">Trạng thái</th>
+                            <th style="width: 150px;">Ngày tạo</th>
+                            <th style="width: 90px;" class="text-center">Chi tiết</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var payment in Model.Payments)
                         {
                             <tr>
-                                <td><strong class="text-muted">#@payment.PaymentId</strong></td>
+                                <td><strong>#@payment.PaymentId</strong></td>
+                                <td><small class="font-monospace text-muted">@(payment.TransactionRef ?? $"PMT-{payment.PaymentId:D6}")</small></td>
                                 <td>
-                                    <small class="font-monospace text-primary">
-                                        @(payment.TransactionRef ?? $"PMT-{payment.PaymentId:D6}")
-                                    </small>
-                                </td>
-                                <td>
-                                    <a href="#" class="text-decoration-none fw-semibold">
-                                        <i class="fas fa-shopping-cart me-1"></i>#@payment.OrderId
+                                    <a asp-page="/Admin/PaymentManagement" asp-route-orderId="@payment.OrderId" class="text-decoration-none fw-semibold">
+                                        #@payment.OrderId
                                     </a>
                                 </td>
                                 <td>
                                     @if (payment.PaymentMethod == "VNPay")
                                     {
-                                        <span class="badge bg-primary">
-                                            <i class="fas fa-credit-card me-1"></i>VNPay
-                                        </span>
+                                        <span class="status-badge info"><i class="fas fa-credit-card me-1"></i>VNPay</span>
                                     }
                                     else if (payment.PaymentMethod == "Cash")
                                     {
-                                        <span class="badge bg-success">
-                                            <i class="fas fa-money-bill-wave me-1"></i>Cash
-                                        </span>
+                                        <span class="status-badge success"><i class="fas fa-money-bill-wave me-1"></i>Tiền mặt</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary">
-                                            <i class="fas fa-wallet me-1"></i>@payment.PaymentMethod
-                                        </span>
+                                        <span class="status-badge">@payment.PaymentMethod</span>
                                     }
                                 </td>
-                                <td class="text-end">
-                                    <strong class="text-success">@payment.Amount.ToString("N0") ?</strong>
-                                </td>
-                                <td class="text-center">
+                                <td class="text-end"><strong>@payment.Amount.ToString("N0") VNĐ</strong></td>
+                                <td>
                                     @switch (payment.Status)
                                     {
                                         case Domain.Enums.PaymentStatus.Paid:
-                                            <span class="badge bg-success px-3 py-2">
-                                                <i class="fas fa-check-circle me-1"></i>@payment.StatusDisplay
-                                            </span>
+                                            <span class="status-badge success"><i class="fas fa-check-circle me-1"></i>Đã thanh toán</span>
                                             break;
                                         case Domain.Enums.PaymentStatus.Pending:
-                                            <span class="badge bg-warning text-dark px-3 py-2">
-                                                <i class="fas fa-clock me-1"></i>@payment.StatusDisplay
-                                            </span>
+                                            <span class="status-badge warning"><i class="fas fa-clock me-1"></i>Chờ xử lý</span>
                                             break;
                                         case Domain.Enums.PaymentStatus.Canceled:
-                                            <span class="badge bg-danger px-3 py-2">
-                                                <i class="fas fa-times-circle me-1"></i>@payment.StatusDisplay
-                                            </span>
+                                            <span class="status-badge danger"><i class="fas fa-times-circle me-1"></i>Đã hủy</span>
                                             break;
                                         case Domain.Enums.PaymentStatus.Refunded:
-                                            <span class="badge bg-info px-3 py-2">
-                                                <i class="fas fa-undo me-1"></i>@payment.StatusDisplay
-                                            </span>
+                                            <span class="status-badge info"><i class="fas fa-rotate-left me-1"></i>Hoàn tiền</span>
                                             break;
                                         default:
-                                            <span class="badge bg-secondary px-3 py-2">@payment.StatusDisplay</span>
+                                            <span class="status-badge">@payment.StatusDisplay</span>
                                             break;
                                     }
                                 </td>
-                                <td>
-                                    <small class="text-muted">
-                                        <i class="fas fa-calendar me-1"></i>@payment.CreatedAtDisplay
-                                    </small>
-                                </td>
+                                <td><small class="text-muted">@payment.CreatedAtDisplay</small></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-info" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#paymentDetailModal"
-                                            onclick="loadPaymentDetail(@payment.PaymentId)"
-                                            title="Xem chi ti?t">
+                                    <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#paymentDetailModal" onclick="loadPaymentDetail(@payment.PaymentId)" title="Xem chi tiết">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </td>
@@ -223,28 +148,36 @@
     </div>
 </div>
 
-<!-- Payment Detail Modal -->
+@if (Model.Payments.Count > 0)
+{
+    <nav aria-label="Payment pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.PageNumber <= 1 ? "disabled" : "")">
+                <a class="page-link" asp-page="/Admin/PaymentManagement" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize" asp-route-search="@Model.Search" asp-route-orderId="@Model.OrderId" asp-route-method="@Model.Method" asp-route-status="@Model.Status">Trước</a>
+            </li>
+            <li class="page-item active"><span class="page-link">Trang @Model.PageNumber</span></li>
+            <li class="page-item">
+                <a class="page-link" asp-page="/Admin/PaymentManagement" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize" asp-route-search="@Model.Search" asp-route-orderId="@Model.OrderId" asp-route-method="@Model.Method" asp-route-status="@Model.Status">Tiếp</a>
+            </li>
+        </ul>
+    </nav>
+}
+
 <div class="modal fade" id="paymentDetailModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
-                    <i class="fas fa-file-invoice me-2"></i>Chi ti?t giao d?ch
-                </h5>
+                <h5 class="modal-title"><i class="fas fa-file-invoice me-2"></i>Chi tiết giao dịch</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="paymentDetailContent">
                 <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="text-muted mt-3">?ang t?i d? li?u...</p>
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="text-muted mt-3">Đang tải dữ liệu...</p>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-1"></i>?�ng
-                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Đóng</button>
             </div>
         </div>
     </div>
@@ -254,116 +187,70 @@
     <script>
         function loadPaymentDetail(paymentId) {
             const content = document.getElementById('paymentDetailContent');
-            
-            // Show loading spinner
+
             content.innerHTML = `
                 <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="text-muted mt-3">?ang t?i d? li?u...</p>
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="text-muted mt-3">Đang tải dữ liệu...</p>
                 </div>`;
-            
-            // Fetch payment details via AJAX
+
             fetch(`?handler=Detail&id=${paymentId}`)
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
+                    if (!response.ok) throw new Error('Network response was not ok');
                     return response.json();
                 })
                 .then(payment => {
-                    // Build detail HTML
-                    const statusBadge = getStatusBadge(payment.status, payment.statusDisplay);
-                    const methodBadge = getMethodBadge(payment.paymentMethod);
-                    
+                    const statusClass = {
+                        'Đã thanh toán': 'success',
+                        'Chờ xử lý': 'warning',
+                        'Đã hủy': 'danger',
+                        'Hoàn tiền': 'info'
+                    }[payment.statusDisplay] || 'secondary';
+
                     content.innerHTML = `
-                        <div class="row g-4">
+                        <div class="row g-3">
                             <div class="col-md-6">
-                                <div class="card border-0 bg-light">
-                                    <div class="card-body">
-                                        <h6 class="text-muted mb-3"><i class="fas fa-info-circle me-2"></i>Th�ng tin giao d?ch</h6>
-                                        <dl class="row mb-0">
-                                            <dt class="col-sm-5">Payment ID:</dt>
-                                            <dd class="col-sm-7"><strong>#${payment.paymentId}</strong></dd>
-                                            
-                                            <dt class="col-sm-5">Order ID:</dt>
-                                            <dd class="col-sm-7"><strong>#${payment.orderId}</strong></dd>
-                                            
-                                            <dt class="col-sm-5">M� giao d?ch:</dt>
-                                            <dd class="col-sm-7"><code>${payment.transactionRef || 'N/A'}</code></dd>
-                                            
-                                            <dt class="col-sm-5">Ph??ng th?c:</dt>
-                                            <dd class="col-sm-7">${methodBadge}</dd>
-                                            
-                                            <dt class="col-sm-5">Tr?ng th�i:</dt>
-                                            <dd class="col-sm-7">${statusBadge}</dd>
-                                        </dl>
-                                    </div>
+                                <h6 class="fw-semibold mb-3">Thông tin giao dịch</h6>
+                                <div class="form-group">
+                                    <label class="form-group-label">ID giao dịch</label>
+                                    <p class="mb-3"><strong>#${payment.paymentId}</strong></p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-group-label">Mã giao dịch</label>
+                                    <p class="mb-3"><code>${payment.transactionRef || 'Không có'}</code></p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-group-label">Order ID</label>
+                                    <p class="mb-0"><strong>#${payment.orderId}</strong></p>
                                 </div>
                             </div>
-                            
                             <div class="col-md-6">
-                                <div class="card border-0 bg-light">
-                                    <div class="card-body">
-                                        <h6 class="text-muted mb-3"><i class="fas fa-dollar-sign me-2"></i>Chi ti?t thanh to�n</h6>
-                                        <dl class="row mb-0">
-                                            <dt class="col-sm-5">S? ti?n:</dt>
-                                            <dd class="col-sm-7"><strong class="text-success fs-5">${payment.amount.toLocaleString('vi-VN')} ?</strong></dd>
-                                            
-                                            <dt class="col-sm-5">Ti?n t?:</dt>
-                                            <dd class="col-sm-7">${payment.currency}</dd>
-                                            
-                                            <dt class="col-sm-5">T?ng ??n h�ng:</dt>
-                                            <dd class="col-sm-7">${payment.orderTotal.toLocaleString('vi-VN')} ?</dd>
-                                            
-                                            <dt class="col-sm-5">Tr?ng th�i ??n:</dt>
-                                            <dd class="col-sm-7"><span class="badge bg-info">${payment.orderStatus}</span></dd>
-                                            
-                                            <dt class="col-sm-5">Ng�y t?o:</dt>
-                                            <dd class="col-sm-7">${payment.createdAtDisplay}</dd>
-                                        </dl>
-                                    </div>
+                                <h6 class="fw-semibold mb-3">Chi tiết thanh toán</h6>
+                                <div class="form-group">
+                                    <label class="form-group-label">Phương thức</label>
+                                    <p class="mb-3"><strong>${payment.paymentMethod}</strong></p>
                                 </div>
+                                <div class="form-group">
+                                    <label class="form-group-label">Số tiền</label>
+                                    <p class="mb-3"><strong class="text-success">${payment.amount.toLocaleString('vi-VN')} VNĐ</strong></p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-group-label">Trạng thái</label>
+                                    <p class="mb-0"><span class="status-badge ${statusClass}">${payment.statusDisplay}</span></p>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <hr>
+                                <p class="text-muted mb-0"><i class="fas fa-calendar me-2"></i>Ngày tạo: ${payment.createdAtDisplay}</p>
                             </div>
                         </div>`;
                 })
-                .catch(error => {
-                    console.error('Error loading payment detail:', error);
+                .catch(() => {
                     content.innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-circle me-2"></i>
-                            Kh�ng th? t?i chi ti?t giao d?ch. Vui l�ng th? l?i.
+                        <div class="alert alert-danger mb-0">
+                            <i class="fas fa-exclamation-circle me-2"></i>Lỗi khi tải dữ liệu. Vui lòng thử lại.
                         </div>`;
                 });
         }
-        
-        function getStatusBadge(status, displayText) {
-            const statusMap = {
-                0: '<span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>' + displayText + '</span>',
-                1: '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>' + displayText + '</span>',
-                2: '<span class="badge bg-info"><i class="fas fa-undo me-1"></i>' + displayText + '</span>',
-                3: '<span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>' + displayText + '</span>'
-            };
-            return statusMap[status] || '<span class="badge bg-secondary">' + displayText + '</span>';
-        }
-        
-        function getMethodBadge(method) {
-            if (method === 'VNPay') {
-                return '<span class="badge bg-primary"><i class="fas fa-credit-card me-1"></i>VNPay</span>';
-            } else if (method === 'Cash') {
-                return '<span class="badge bg-success"><i class="fas fa-money-bill-wave me-1"></i>Cash</span>';
-            }
-            return '<span class="badge bg-secondary"><i class="fas fa-wallet me-1"></i>' + method + '</span>';
-        }
-        
-        // Auto dismiss alerts
-        setTimeout(() => {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            });
-        }, 5000);
     </script>
 }

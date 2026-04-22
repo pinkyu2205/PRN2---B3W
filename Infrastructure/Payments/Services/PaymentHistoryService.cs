@@ -41,14 +41,50 @@ namespace Infrastructure.Payments.Services
                 .ToList();
         }
 
-        public async Task<List<PaymentHistoryDto>> GetAllPaymentHistoryAsync(int pageNumber = 1, int pageSize = 50, CancellationToken ct = default)
+        public async Task<List<PaymentHistoryDto>> GetAllPaymentHistoryAsync(
+            int pageNumber = 1,
+            int pageSize = 50,
+            string? search = null,
+            string? method = null,
+            PaymentStatus? status = null,
+            int? orderId = null,
+            CancellationToken ct = default)
         {
-            var payments = await _uow.PaymentRepository
+            var query = _uow.PaymentRepository
                 .GetAllQueryable("PaymentMethod,Order,Order.Account")
-                .Where(p => !p.IsDeleted)
+                .Where(p => !p.IsDeleted);
+
+            if (orderId.HasValue && orderId.Value > 0)
+            {
+                query = query.Where(p => p.OrderId == orderId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var keyword = search.Trim();
+                query = query.Where(p =>
+                    EF.Functions.Like(p.Id.ToString(), $"%{keyword}%")
+                    || EF.Functions.Like(p.OrderId.ToString(), $"%{keyword}%")
+                    || (!string.IsNullOrEmpty(p.TransactionRef) && EF.Functions.Like(p.TransactionRef, $"%{keyword}%")));
+            }
+
+            if (!string.IsNullOrWhiteSpace(method))
+            {
+                query = query.Where(p => p.PaymentMethod != null && p.PaymentMethod.Name == method);
+            }
+
+            if (status.HasValue)
+            {
+                query = query.Where(p => p.PaymentStatus == status.Value);
+            }
+
+            var safePage = pageNumber <= 0 ? 1 : pageNumber;
+            var safePageSize = pageSize <= 0 ? 50 : pageSize;
+
+            var payments = await query
                 .OrderByDescending(p => p.CreatedAt)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((safePage - 1) * safePageSize)
+                .Take(safePageSize)
                 .ToListAsync(ct);
 
             return payments

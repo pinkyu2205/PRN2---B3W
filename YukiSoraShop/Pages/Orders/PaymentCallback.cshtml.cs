@@ -36,7 +36,7 @@ namespace YukiSoraShop.Pages.Orders
                 var result = await _payment.HandleCallbackAsync(Request.Query);
 
                 IsSuccess = result.IsSuccess;
-                Message = result.Message ?? (result.IsSuccess ? "Thanh to�n th�nh c�ng" : "Thanh to�n th?t b?i");
+                Message = result.Message ?? (result.IsSuccess ? "Thanh toán thành công" : "Thanh toán thất bại");
                 TransactionRef = result.TransactionRef;
                 BankCode = result.BankCode;
                 PayDate = result.PayDate;
@@ -47,12 +47,12 @@ namespace YukiSoraShop.Pages.Orders
                 {
                     _logger.LogInformation("Payment successful for order {OrderId}, transaction {TransactionRef}", 
                         OrderId, TransactionRef);
-                    TempData["Success"] = "Thanh to�n th�nh c�ng! ??n h�ng c?a b?n ?ang ???c x? l�.";
+                    TempData["Success"] = "Thanh toán thành công! Đơn hàng của bạn đang được xử lý.";
                 }
                 else
                 {
                     _logger.LogWarning("Payment failed for order {OrderId}: {Message}", OrderId, Message);
-                    TempData["Error"] = $"Thanh to�n th?t b?i: {Message}";
+                    TempData["Error"] = $"Thanh toán thất bại: {Message}";
                 }
 
                 return Page();
@@ -61,7 +61,7 @@ namespace YukiSoraShop.Pages.Orders
             {
                 _logger.LogError(ex, "Error processing payment callback");
                 IsSuccess = false;
-                Message = "C� l?i x?y ra khi x? l� thanh to�n. Vui l�ng li�n h? h? tr?.";
+                Message = "Có lỗi xảy ra khi xử lý thanh toán. Vui lòng liên hệ hỗ trợ.";
                 return Page();
             }
         }

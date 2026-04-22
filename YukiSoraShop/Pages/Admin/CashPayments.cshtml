@@ -3,201 +3,107 @@
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @{
     ViewData["Title"] = "Xác nhận thanh toán tiền mặt";
-    Layout = "~/Pages/Shared/_Layout.cshtml";
     var antiForgeryToken = Antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0">
-        <i class="fas fa-hand-holding-usd me-2"></i> Xác nhận thanh toán tiền mặt
-    </h2>
-    <a class="btn btn-outline-secondary" asp-page="/Admin/Dashboard">
-        <i class="fas fa-arrow-left"></i> Về Dashboard
-    </a>
+<div class="admin-page-header">
+    <div class="admin-page-header-left">
+        <h1>Xác nhận thanh toán tiền mặt</h1>
+        <p>Quản lý danh sách đơn hàng chờ xác nhận thanh toán bằng tiền mặt</p>
+    </div>
 </div>
 
-@if (!string.IsNullOrEmpty(Model.StatusMessage))
-{
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @Html.Raw(Model.StatusMessage)
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
-
-@if (!string.IsNullOrEmpty(Model.ErrorMessage))
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        @Model.ErrorMessage
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
+@await Html.PartialAsync("_Alerts")
 
 <input type="hidden" id="cash-antiforgery-token" value="@antiForgeryToken" />
 
-<div id="cash-empty-alert" class="alert alert-info" style="display:@(Model.Orders.Count == 0 ? "block" : "none")">
-    Hiện không có đơn hàng nào đang chờ xác nhận thanh toán tiền mặt.
-</div>
-
-<div id="cash-table-container" class="table-responsive shadow-sm rounded bg-white" style="display:@(Model.Orders.Count == 0 ? "none" : "block")">
-    <table class="table table-striped align-middle mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th scope="col">Đơn hàng</th>
-                    <th scope="col">Khách hàng</th>
-                    <th scope="col">Ngày tạo</th>
-                    <th scope="col">Tổng tiền</th>
-                    <th scope="col">Trạng thái thanh toán</th>
-                    <th scope="col" class="text-end">Thao tác</th>
-                </tr>
-            </thead>
-            <tbody id="cash-table-body">
-                @foreach (var order in Model.Orders)
-                {
-                    <tr id="cash-order-@order.OrderId" data-order-id="@order.OrderId">
-                        <td>#@order.OrderId</td>
-                        <td>
-                            <strong data-role="customer-name">@order.CustomerName</strong><br />
-                            <small class="text-muted" data-role="customer-email">@order.CustomerEmail</small>
-                        </td>
-                        <td data-role="created-at">@order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
-                        <td><strong data-role="grand-total">@order.GrandTotal.ToString("N0") ₫</strong></td>
-                        <td>
-                            <span class="badge bg-warning text-dark" data-role="payment-status">@order.PaymentStatus</span>
-                        </td>
-                        <td class="text-end">
-                            <form method="post" asp-page-handler="Confirm" class="d-inline">
-                                <input type="hidden" name="orderId" value="@order.OrderId" />
-                                <button type="submit" class="btn btn-success btn-sm">
-                                    <i class="fas fa-check-circle me-1"></i> Đã nhận tiền
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+<!-- DATA TABLE -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        @if (Model.Orders.Count == 0)
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="empty-state-title">Không có đơn hàng chờ xác nhận</div>
+                <div class="empty-state-message">Tất cả các đơn hàng thanh toán tiền mặt đã được xác nhận.</div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">Order ID</th>
+                            <th style="width: 180px;">Khách hàng</th>
+                            <th style="width: 130px;">Ngày tạo</th>
+                            <th style="width: 120px;" class="text-end">Tổng tiền</th>
+                            <th style="width: 100px;">Trạng thái</th>
+                            <th style="width: 80px;" class="text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cash-table-body">
+                        @foreach (var order in Model.Orders)
+                        {
+                            <tr id="cash-order-@order.OrderId" data-order-id="@order.OrderId">
+                                <td><strong>#@order.OrderId</strong></td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar" style="width: 32px; height: 32px; background: linear-gradient(135deg, var(--color-primary), #0dcaf0); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                                            @order.CustomerName.FirstOrDefault()
+                                        </div>
+                                        <div>
+                                            <strong data-role="customer-name">@order.CustomerName</strong><br>
+                                            <small class="text-muted" data-role="customer-email">@order.CustomerEmail</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <small class="text-muted" data-role="created-at">
+                                        @order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                                    </small>
+                                </td>
+                                <td class="text-end">
+                                    <strong data-role="grand-total">@order.GrandTotal.ToString("N0") VNĐ</strong>
+                                </td>
+                                <td>
+                                    <span class="status-badge warning" data-role="payment-status">
+                                        <i class="fas fa-clock me-1"></i>Chờ xác nhận
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <form method="post" asp-page-handler="Confirm" class="d-inline">
+                                        <input type="hidden" name="orderId" value="@order.OrderId" />
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Xác nhận đã nhận tiền">
+                                            <i class="fas fa-check-circle"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
     </div>
 </div>
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js" integrity="sha512-8w7PjJYG1ChcxrFAuo0xO+ogzAm8h1Hn0pVITNrW2N7DbStO2Qd6hw2yffA9H9n1tFoZTsvuCFbYo+aX6YTL/w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        (() => {
-            const antiforgeryToken = document.getElementById("cash-antiforgery-token")?.value ?? "";
-            const tableBody = document.getElementById("cash-table-body");
-            const tableContainer = document.getElementById("cash-table-container");
-            const emptyAlert = document.getElementById("cash-empty-alert");
-
-            function formatCurrency(value) {
-                return Number(value || 0).toLocaleString("vi-VN") + " ₫";
-            }
-
-            function toLocalDateTime(value) {
-                if (!value) return "";
-                const date = new Date(value);
-                if (isNaN(date.getTime())) return value;
-                return date.toLocaleString("vi-VN");
-            }
-
-            function toggleEmptyState() {
-                const hasRows = tableBody?.children?.length > 0;
-                if (tableContainer) tableContainer.style.display = hasRows ? "block" : "none";
-                if (emptyAlert) emptyAlert.style.display = hasRows ? "none" : "block";
-            }
-
-            function renderCashRow(payload) {
-                if (!tableBody) {
-                    return;
-                }
-                const id = payload.orderId ?? payload.OrderId;
-                if (!id) return;
-                const existing = document.getElementById(`cash-order-${id}`);
-                const row = existing ?? document.createElement("tr");
-                row.id = `cash-order-${id}`;
-                row.dataset.orderId = id;
-                if (!existing) {
-                    row.innerHTML = `
-                        <td class="cash-order-id"></td>
-                        <td>
-                            <strong data-role="customer-name"></strong><br />
-                            <small class="text-muted" data-role="customer-email"></small>
-                        </td>
-                        <td data-role="created-at"></td>
-                        <td><strong data-role="grand-total"></strong></td>
-                        <td><span class="badge bg-warning text-dark" data-role="payment-status"></span></td>
-                        <td class="text-end">
-                            <form method="post" action="?handler=Confirm" class="d-inline">
-                                <input type="hidden" name="__RequestVerificationToken" value="${antiforgeryToken}" />
-                                <input type="hidden" name="orderId" value="${id}" />
-                                <button type="submit" class="btn btn-success btn-sm">
-                                    <i class="fas fa-check-circle me-1"></i> Đã nhận tiền
-                                </button>
-                            </form>
-                        </td>`;
-                    tableBody.prepend(row);
-                }
-
-                const idCell = row.querySelector(".cash-order-id");
-                if (idCell) { idCell.textContent = `#${id}`; }
-                const nameEl = row.querySelector('[data-role="customer-name"]');
-                if (nameEl) { nameEl.textContent = payload.customerName ?? payload.CustomerName ?? `User #${payload.accountId ?? payload.AccountId ?? ""}`; }
-                const emailEl = row.querySelector('[data-role="customer-email"]');
-                if (emailEl) { emailEl.textContent = payload.customerEmail ?? payload.CustomerEmail ?? ""; }
-                const createdAtEl = row.querySelector('[data-role="created-at"]');
-                if (createdAtEl) { createdAtEl.textContent = payload.createdAtDisplay ?? toLocalDateTime(payload.createdAt ?? payload.CreatedAt); }
-                const totalEl = row.querySelector('[data-role="grand-total"]');
-                if (totalEl) { totalEl.textContent = formatCurrency(payload.grandTotal ?? payload.GrandTotal); }
-                const statusEl = row.querySelector('[data-role="payment-status"]');
-                if (statusEl) {
-                    statusEl.textContent = payload.paymentStatus ?? payload.PaymentStatus ?? "Pending";
-                    statusEl.classList.remove("bg-success", "bg-warning", "bg-secondary", "bg-danger", "text-dark");
-                    const status = (payload.paymentStatus ?? payload.PaymentStatus ?? "").toString().toLowerCase();
-                    if (status === "paid") {
-                        statusEl.classList.add("bg-success");
-                    } else if (status === "pending") {
-                        statusEl.classList.add("bg-warning", "text-dark");
-                    } else {
-                        statusEl.classList.add("bg-secondary");
-                    }
-                }
-
-                toggleEmptyState();
-            }
-
-            function removeCashRow(payload) {
-                const id = payload?.orderId ?? payload?.OrderId;
-                if (!id) return;
-                const row = document.getElementById(`cash-order-${id}`);
-                if (row?.parentElement) {
-                    row.parentElement.removeChild(row);
-                }
-                toggleEmptyState();
-            }
-
-            function applyDashboardSummary(summary) {
-                const map = {
-                    totalUsersValue: summary?.totalUsers ?? summary?.TotalUsers,
-                    totalProductsValue: summary?.totalProducts ?? summary?.TotalProducts,
-                    totalOrdersValue: summary?.totalOrders ?? summary?.TotalOrders,
-                    awaitingCashValue: summary?.awaitingCashOrders ?? summary?.AwaitingCashOrders,
-                    totalRevenueValue: summary?.totalRevenue ?? summary?.TotalRevenue
-                };
-
-                Object.entries(map).forEach(([id, value]) => {
-                    const el = document.getElementById(id);
-                    if (!el || value === undefined || value === null) return;
-                    if (id === "totalRevenueValue") {
-                        el.textContent = Number(value).toLocaleString("vi-VN", { style: "currency", currency: "VND" });
-                    } else {
-                        el.textContent = value;
-                    }
-                });
-            }
-
-            const connection = new signalR.HubConnectionBuilder()
-                .withUrl("/hubs/adminDashboard")
-                .withAutomaticReconnect()
-                .build();
+        function formatCurrency(value) {
+            return Number(value || 0).toLocaleString("vi-VN") + " VNĐ";
+        }
+        function toLocalDateTime(value) {
+            if (!value) return "";
+            const date = new Date(value);
+            if (isNaN(date.getTime())) return value;
+            return date.toLocaleString("vi-VN");
+        }
+    </script>
+}
 
             connection.on("DashboardSummaryUpdated", applyDashboardSummary);
             connection.on("CashOrderRemoved", removeCashRow);

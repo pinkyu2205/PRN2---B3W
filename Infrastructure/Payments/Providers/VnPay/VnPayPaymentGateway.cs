@@ -31,6 +31,7 @@ namespace Infrastructure.Payments.Providers.VnPay
             string clientIp,
             string? bankCode,
             string? orderDesc,
+            string? returnUrl,
             string orderTypeCode,
             CancellationToken ct = default)
         {
@@ -53,7 +54,7 @@ namespace Infrastructure.Payments.Providers.VnPay
             vnp.AddRequestData("vnp_Locale", _opt.vnp_Locale);
             vnp.AddRequestData("vnp_OrderInfo", orderInfo);
             vnp.AddRequestData("vnp_OrderType", orderTypeCode);
-            vnp.AddRequestData("vnp_ReturnUrl", _opt.vnp_ReturnUrl);
+            vnp.AddRequestData("vnp_ReturnUrl", ResolveReturnUrl(returnUrl));
             vnp.AddRequestData("vnp_TxnRef", txnRef);
 
             if (!string.IsNullOrWhiteSpace(bankCode))
@@ -133,6 +134,16 @@ namespace Infrastructure.Payments.Providers.VnPay
             }
 
             return (0, 0);
+        }
+
+        private string ResolveReturnUrl(string? requestReturnUrl)
+        {
+            if (!string.IsNullOrWhiteSpace(requestReturnUrl))
+            {
+                return requestReturnUrl.Trim();
+            }
+
+            return _opt.vnp_ReturnUrl;
         }
 
         private static string ToGmt7String(DateTime utc, string timeZoneId)

@@ -1,10 +1,9 @@
-using Domain.Entities;
-using Domain.Enums;
+﻿using Domain.Enums;
 
 namespace Application.Payments.DTOs
 {
     /// <summary>
-    /// DTO cho l?ch s? thanh to�n c?a user
+    /// DTO cho lịch sử thanh toán của người dùng.
     /// </summary>
     public class PaymentHistoryDto
     {
@@ -16,17 +15,16 @@ namespace Application.Payments.DTOs
         public PaymentStatus Status { get; set; }
         public string StatusDisplay => Status switch
         {
-            PaymentStatus.Pending => "?ang ch?",
-            PaymentStatus.Paid => "?� thanh to�n",
-            PaymentStatus.Canceled => "?� h?y",
-            PaymentStatus.Refunded => "?� ho�n ti?n",
-            _ => "Kh�ng x�c ??nh"
+            PaymentStatus.Pending => "Đang chờ",
+            PaymentStatus.Paid => "Đã thanh toán",
+            PaymentStatus.Canceled => "Đã hủy",
+            PaymentStatus.Refunded => "Đã hoàn tiền",
+            _ => "Không xác định"
         };
         public string? TransactionRef { get; set; }
         public DateTime CreatedAt { get; set; }
         public string CreatedAtDisplay => CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm");
-        
-        // Order info
+
         public decimal OrderTotal { get; set; }
         public string OrderStatus { get; set; } = string.Empty;
     }

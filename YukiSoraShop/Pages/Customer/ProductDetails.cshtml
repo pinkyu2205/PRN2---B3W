@@ -96,7 +96,7 @@
             @if (isAdminOrStaff)
             {
                 <button type="button" class="btn btn-lg btn-secondary w-100" disabled title="Tài khoản quản trị/nhân viên không thể mua hàng">
-                    <i class="fas fa-ban me-2"></i>Không thể thêm vào giỏ hàng
+                    <i class="fas fa-ban me-2"></i>Không thể mua hàng
                 </button>
             }
             else
@@ -107,8 +107,8 @@
                     <input type="hidden" id="selectedDetailId" name="productDetailId" value="0" />
 
                     <div class="d-grid gap-2 d-sm-flex">
-                        <button type="submit" id="addToCartBtn" class="btn btn-gradient btn-lg px-4" disabled>
-                            <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ hàng
+                        <button type="submit" id="addToCartBtn" class="btn btn-buy-now btn-lg px-4" disabled>
+                            <i class="fas fa-bolt me-2"></i>Mua ngay
                         </button>
                         <a class="btn btn-outline-primary btn-lg px-4" href="/Customer/Catalog">
                             <i class="fas fa-arrow-left me-2"></i>Tiếp tục xem sản phẩm
@@ -180,6 +180,13 @@
         transition: all .2s ease;
     }
     .btn-gradient:hover { filter: brightness(1.05); color: #fff; }
+    .btn-buy-now {
+        background: linear-gradient(135deg, #ff6b00, #ff2f55);
+        border: none;
+        color: #fff;
+        box-shadow: 0 12px 24px rgba(255,47,85,.24);
+    }
+    .btn-buy-now:hover { color: #fff; filter: brightness(1.04); transform: translateY(-1px); }
     .thumb-image { transition: transform .2s ease; }
     .thumb-image:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,.15); }
 </style>
