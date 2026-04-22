@@ -103,10 +103,26 @@ namespace Application.Services
         {
             var query = _uow.OrderRepository.GetAllQueryable("Account,Payments.PaymentMethod,OrderDetails.Product")
                 .AsNoTracking()
-                .Where(o => o.Status == "AwaitingCash");
+                .Where(o => o.Status == "Pending" || o.Status == "AwaitingCash");
             return await query
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync(ct);
+        }
+
+        public async Task UpdateOrderStatusAsync(int orderId, string status, CancellationToken ct = default)
+        {
+            var order = await _uow.OrderRepository.GetByIdAsync(orderId);
+            if (order != null)
+            {
+                order.Status = status;
+                order.ModifiedAt = DateTime.UtcNow;
+                order.ModifiedBy = "System_SePay";
+                
+                await _uow.SaveChangesAsync();
+                
+                await _realtimeService.NotifyCustomerOrderStatusChangedAsync(order.AccountId, order.Id, order.Status);
+                await _realtimeService.BroadcastAdminDashboardUpdateAsync("OrderUpdated", order.Id);
+            }
         }
     }
 }

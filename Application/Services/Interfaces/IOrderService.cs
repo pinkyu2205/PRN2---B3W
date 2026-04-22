@@ -10,5 +10,6 @@ namespace Application.Services.Interfaces
         Task<Order?> GetOrderByIdAsync(int id);
         Task<Order?> GetOrderWithDetailsAsync(int id);
         Task<List<Order>> GetOrdersAwaitingCashAsync(CancellationToken ct = default);
+        Task UpdateOrderStatusAsync(int orderId, string status, CancellationToken ct = default);
     }
 }

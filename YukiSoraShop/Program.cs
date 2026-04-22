@@ -2,6 +2,7 @@ using Infrastructure;
 using Serilog;
 using YukiSoraShop.Filters;
 using YukiSoraShop.Hubs;
+using YukiSoraShop.Extensions;
 
 namespace YukiSoraShop
 {
@@ -100,6 +101,9 @@ namespace YukiSoraShop
                 app.MapHub<AdminDashboardHub>("/hubs/adminDashboard");
                 app.MapHub<NotificationHub>("/hubs/notification");
                 app.MapHub<CatalogHub>("/hubs/catalog");
+                
+                app.MapSePayEndpoints();
+
                 app.MapGet("/", () => Results.Redirect("/Customer/Catalog"));
 
                 app.Run();
