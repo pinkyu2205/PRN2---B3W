@@ -106,26 +106,6 @@ namespace YukiSoraShop
 
                 app.MapGet("/", () => Results.Redirect("/Customer/Catalog"));
 
-                using (var scope = app.Services.CreateScope())
-                {
-                    var dbContext = scope.ServiceProvider.GetRequiredService<Infrastructure.Data.AppDbContext>();
-                    if (!dbContext.PaymentMethods.Any(pm => pm.Name == "SePay"))
-                    {
-                        dbContext.PaymentMethods.Add(new Domain.Entities.PaymentMethod
-                        {
-                            Name = "SePay",
-                            Description = "Thanh toán tự động bằng mã QR qua SePay",
-                            IsActive = true,
-                            CreatedAt = DateTime.UtcNow,
-                            CreatedBy = "System",
-                            ModifiedAt = DateTime.UtcNow,
-                            ModifiedBy = "System",
-                            IsDeleted = false
-                        });
-                        dbContext.SaveChanges();
-                    }
-                }
-
                 app.Run();
             }
             catch (Exception ex)
