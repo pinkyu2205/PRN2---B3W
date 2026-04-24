@@ -57,12 +57,15 @@
                     </a>
                 </div>
 
-                <!-- Account Management -->
                 <div class="admin-sidebar-nav-section">
                     <div class="admin-sidebar-nav-section-title">Hệ thống</div>
                     <a href="~/Admin/AccountManagement" class="admin-sidebar-nav-item @(ViewContext.RouteData.Values["Page"]?.ToString()?.Contains("AccountManagement") == true ? "active" : "")">
                         <i class="fas fa-users"></i>
                         <span>Quản lý tài khoản</span>
+                    </a>
+                    <a href="~/Admin/Notifications" class="admin-sidebar-nav-item @(ViewContext.RouteData.Values["Page"]?.ToString()?.Contains("Notifications") == true ? "active" : "")">
+                        <i class="fas fa-bell"></i>
+                        <span>Quản lý Notification</span>
                     </a>
                 </div>
             </nav>

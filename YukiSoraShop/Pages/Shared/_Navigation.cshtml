@@ -1,4 +1,5 @@
 @inject Application.Services.Interfaces.ICartService CartService
+@inject Application.Services.Interfaces.INotificationService NotificationService
 @using System.Security.Claims
 
 @{
@@ -23,6 +24,22 @@
             {
                 cartCount = 0;
             }
+        }
+    }
+
+    var unreadNotiCount = 0;
+    var recentNotis = new List<Application.DTOs.NotificationDTO>();
+    if (isAuthenticated)
+    {
+        var accountIdStr = User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (int.TryParse(accountIdStr, out var accountId) && accountId > 0)
+        {
+            try
+            {
+                unreadNotiCount = await NotificationService.GetUnreadCountAsync(accountId);
+                recentNotis = await NotificationService.GetUserNotificationsAsync(accountId, 5);
+            }
+            catch { }
         }
     }
 }
@@ -116,6 +133,36 @@
     }
     else
     {
+        <li class="nav-item dropdown ms-2">
+            <a class="nav-link fw-semibold position-relative site-nav-button site-nav-cart dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="notiBell">
+                <i class="fas fa-bell"></i>
+                <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill" id="notiCount" style="display: @(unreadNotiCount > 0 ? "inline-block" : "none")">@unreadNotiCount</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm site-dropdown-menu" style="width: 320px; max-height: 400px; overflow-y: auto;" id="notiDropdown">
+                <li><h6 class="dropdown-header">Thông báo của bạn</h6></li>
+                @if (recentNotis.Any())
+                {
+                    foreach (var noti in recentNotis)
+                    {
+                        var badgeClass = noti.Type switch { "success" => "bg-success", "warning" => "bg-warning", "danger" => "bg-danger", _ => "bg-primary" };
+                        <li>
+                            <a class="dropdown-item py-2 border-bottom @(noti.IsRead ? "text-muted" : "fw-bold")" href="#">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <span class="mb-1 text-truncate" style="max-width: 200px;">@noti.Title</span>
+                                    <small class="text-muted" style="font-size: 0.75rem;">@noti.TimeAgo</small>
+                                </div>
+                                <p class="mb-0 text-wrap text-muted" style="font-size: 0.85rem;">@noti.Message</p>
+                            </a>
+                        </li>
+                    }
+                }
+                else
+                {
+                    <li class="text-center p-3 text-muted" id="emptyNoti">Chưa có thông báo nào</li>
+                }
+            </ul>
+        </li>
+
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle fw-semibold site-nav-link" href="#" role="button" data-bs-toggle="dropdown">
                 <i class="fas fa-user-circle me-1"></i> @userName

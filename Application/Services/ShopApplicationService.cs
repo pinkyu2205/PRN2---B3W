@@ -9,12 +9,14 @@ public class ShopApplicationService : IShopApplicationService
     private readonly IUnitOfWork _uow;
     private readonly IShopService _shopService;
     private readonly IRealtimeService _realtimeService;
+    private readonly INotificationService _notificationService;
 
-    public ShopApplicationService(IUnitOfWork uow, IShopService shopService, IRealtimeService realtimeService)
+    public ShopApplicationService(IUnitOfWork uow, IShopService shopService, IRealtimeService realtimeService, INotificationService notificationService)
     {
         _uow = uow;
         _shopService = shopService;
         _realtimeService = realtimeService;
+        _notificationService = notificationService;
     }
 
     public async Task<bool> SubmitApplicationAsync(ShopApplication application)
@@ -124,7 +126,7 @@ public class ShopApplicationService : IShopApplicationService
             await _uow.SaveChangesAsync();
 
             // Notify user
-            await _realtimeService.SendNotificationToUserAsync(application.ApplicantId, "Chúc mừng", "Hồ sơ mở shop của bạn đã được duyệt!", "success");
+            await _notificationService.CreateNotificationAsync(application.ApplicantId, "Chúc mừng", "Hồ sơ mở shop của bạn đã được duyệt!", "success");
 
             return true;
         }
@@ -151,7 +153,7 @@ public class ShopApplicationService : IShopApplicationService
             await _uow.SaveChangesAsync();
 
             // Notify user
-            await _realtimeService.SendNotificationToUserAsync(application.ApplicantId, "Rất tiếc", "Hồ sơ mở shop của bạn đã bị từ chối.", "warning");
+            await _notificationService.CreateNotificationAsync(application.ApplicantId, "Rất tiếc", $"Hồ sơ mở shop của bạn đã bị từ chối. Lý do: {reason}", "warning");
             
             return true;
         }

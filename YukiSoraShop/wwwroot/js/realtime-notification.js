@@ -58,7 +58,62 @@ document.addEventListener("DOMContentLoaded", function () {
     // 1. General User Notification
     connection.on("ReceiveNotification", function (title, message, type) {
         showToast(title, message, type);
+        
+        // Update notification bell badge
+        let badge = document.getElementById("notiCount");
+        if (badge) {
+            let count = parseInt(badge.innerText) || 0;
+            badge.innerText = count + 1;
+            badge.style.display = "inline-block";
+        }
+        
+        // Prepend to dropdown list
+        let notiDropdown = document.getElementById("notiDropdown");
+        if (notiDropdown) {
+            let emptyLi = document.getElementById("emptyNoti");
+            if (emptyLi) emptyLi.remove();
+            
+            let bgClass = "text-muted"; // new notifications are bold, but let's make it fw-bold
+            let newLi = document.createElement("li");
+            newLi.innerHTML = `
+                <a class="dropdown-item py-2 border-bottom fw-bold" href="#">
+                    <div class="d-flex w-100 justify-content-between">
+                        <span class="mb-1 text-truncate" style="max-width: 200px;">${title}</span>
+                        <small class="text-muted" style="font-size: 0.75rem;">Vừa xong</small>
+                    </div>
+                    <p class="mb-0 text-wrap text-muted" style="font-size: 0.85rem;">${message}</p>
+                </a>
+            `;
+            // Insert after the header <li>
+            notiDropdown.insertBefore(newLi, notiDropdown.children[1]);
+        }
     });
+
+    // Mark notifications as read when clicking the bell
+    let notiBell = document.getElementById("notiBell");
+    if (notiBell) {
+        notiBell.addEventListener('click', function () {
+            let badge = document.getElementById("notiCount");
+            if (badge && badge.style.display !== "none") {
+                fetch('/api/notifications/markAllAsRead', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(res => {
+                    if (res.ok) {
+                        badge.style.display = "none";
+                        badge.innerText = "0";
+                        // Also remove fw-bold from list items
+                        document.querySelectorAll('#notiDropdown .dropdown-item').forEach(el => {
+                            el.classList.remove('fw-bold');
+                            el.classList.add('text-muted');
+                        });
+                    }
+                });
+            }
+        });
+    }
 
     // 2. Order Status Changed for Customer
     connection.on("ReceiveOverviewUpdate", function (orderId, newStatus) {
@@ -78,12 +133,17 @@ document.addEventListener("DOMContentLoaded", function () {
             await connection.start();
             console.log("Notification Hub Connected.");
         } catch (err) {
-            console.log(err);
+            if (err.statusCode === 401 || err.message.includes("401")) {
+                console.log("Not logged in. Stopping SignalR connection.");
+                return; // Stop retrying if unauthorized
+            }
+            console.log("SignalR Connection Error: ", err);
             setTimeout(start, 5000); // Retry logic
         }
     }
 
-    connection.onclose(async () => {
+    connection.onclose(async (error) => {
+        if (error && (error.message.includes("401") || error.statusCode === 401)) return;
         await start();
     });
 

@@ -1,4 +1,4 @@
-﻿using Application;
+using Application;
 using Application.IRepository;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -28,6 +28,7 @@ namespace Infrastructure
         public readonly IProductDetailRepository _productDetailRepository;
         public readonly IShopRepository _shopRepository;
         public readonly IShopApplicationRepository _shopApplicationRepository;
+        public readonly INotificationRepository _notificationRepository;
 
         public IAccountRepository AccountRepository => _accountRepository;
         public ICartItemRepository CartItemRepository => _cartItemRepository;
@@ -43,6 +44,7 @@ namespace Infrastructure
         public IProductDetailRepository ProductDetailRepository => _productDetailRepository;
         public IShopRepository ShopRepository => _shopRepository;
         public IShopApplicationRepository ShopApplicationRepository => _shopApplicationRepository;
+        public INotificationRepository NotificationRepository => _notificationRepository;
         public UnitOfWork(AppDbContext context,
             IAccountRepository accountRepository,
             ICartItemRepository cartItemRepository,
@@ -57,7 +59,8 @@ namespace Infrastructure
             ICategoryRepository categoryRepository,
             IProductDetailRepository productDetailRepository,
             IShopRepository shopRepository,
-            IShopApplicationRepository shopApplicationRepository)
+            IShopApplicationRepository shopApplicationRepository,
+            INotificationRepository notificationRepository)
         {
             _context = context;
             _accountRepository = accountRepository;
@@ -74,6 +77,7 @@ namespace Infrastructure
             _productDetailRepository = productDetailRepository;
             _shopRepository = shopRepository;
             _shopApplicationRepository = shopApplicationRepository;
+            _notificationRepository = notificationRepository;
         }
 
         public async Task<int> SaveChangesAsync()

@@ -26,6 +26,11 @@ namespace YukiSoraShop.Services
             await _notificationHub.Clients.Group($"User_{userId}").SendAsync("ReceiveNotification", title, message, type);
         }
 
+        public async Task BroadcastNotificationToAllAsync(string title, string message, string type = "info")
+        {
+            await _notificationHub.Clients.All.SendAsync("ReceiveNotification", title, message, type);
+        }
+
         public async Task SendNotificationToRoleAsync(string role, string title, string message, string type = "info")
         {
             // Simplified: we could manage role groups or broadcast differently. 

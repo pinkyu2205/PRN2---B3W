@@ -1,0 +1,55 @@
+@page
+@model YukiSoraShop.Pages.Admin.NotificationsModel
+@{
+    ViewData["Title"] = "Quản lý Notification";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Push Notifications</h2>
+        <p class="text-muted mb-0">Gửi thông báo thời gian thực đến khách hàng</p>
+    </div>
+</div>
+
+@await Html.PartialAsync("_Alerts")
+
+<div class="card shadow-sm border-0 rounded-4">
+    <div class="card-body p-4">
+        <form method="post" asp-page-handler="Push">
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">Tiêu đề thông báo <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" asp-for="Title" required placeholder="Ví dụ: Khuyến mãi khủng mùa hè" />
+                </div>
+                
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">Nội dung <span class="text-danger">*</span></label>
+                    <textarea class="form-control" asp-for="Message" rows="3" required placeholder="Nhập nội dung chi tiết..."></textarea>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Loại thông báo</label>
+                    <select class="form-select" asp-for="Type">
+                        <option value="info">Thông tin (Xanh dương)</option>
+                        <option value="success">Thành công (Xanh lá)</option>
+                        <option value="warning">Cảnh báo (Vàng)</option>
+                        <option value="danger">Quan trọng (Đỏ)</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Gửi đến (Để trống sẽ gửi cho tất cả)</label>
+                    <select class="form-select" asp-for="TargetAccountId" asp-items="Model.AccountOptions">
+                        <option value="">-- Tất cả người dùng --</option>
+                    </select>
+                </div>
+
+                <div class="col-12 mt-4 text-end">
+                    <button type="submit" class="btn btn-primary px-4 py-2">
+                        <i class="fas fa-paper-plane me-2"></i>Gửi thông báo
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

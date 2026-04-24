@@ -10,6 +10,11 @@ namespace Application.Services.Interfaces
         Task SendNotificationToUserAsync(int userId, string title, string message, string type = "info");
 
         /// <summary>
+        /// Sends a notification to all users.
+        /// </summary>
+        Task BroadcastNotificationToAllAsync(string title, string message, string type = "info");
+
+        /// <summary>
         /// Sends a notification to all users in a specific role.
         /// </summary>
         Task SendNotificationToRoleAsync(string role, string title, string message, string type = "info");

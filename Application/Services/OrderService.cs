@@ -10,11 +10,13 @@ namespace Application.Services
     {
         private readonly IUnitOfWork _uow;
         private readonly IRealtimeService _realtimeService;
+        private readonly INotificationService _notificationService;
 
-        public OrderService(IUnitOfWork uow, IRealtimeService realtimeService)
+        public OrderService(IUnitOfWork uow, IRealtimeService realtimeService, INotificationService notificationService)
         {
             _uow = uow;
             _realtimeService = realtimeService;
+            _notificationService = notificationService;
         }
 
         public async Task<Order> CreateOrderFromCartAsync(int accountId, IEnumerable<OrderItemInput> items, string createdBy, CancellationToken ct = default)
@@ -79,6 +81,7 @@ namespace Application.Services
 
             // Real-time notifications
             await _realtimeService.NotifyCustomerOrderStatusChangedAsync(accountId, order.Id, order.Status);
+            await _notificationService.CreateNotificationAsync(accountId, "Đơn hàng mới", $"Đơn hàng #{order.Id} của bạn đã được tạo thành công.", "success");
             await _realtimeService.BroadcastAdminDashboardUpdateAsync("NewOrder", order.Id);
             
             return order;
@@ -121,6 +124,7 @@ namespace Application.Services
                 await _uow.SaveChangesAsync();
                 
                 await _realtimeService.NotifyCustomerOrderStatusChangedAsync(order.AccountId, order.Id, order.Status);
+                await _notificationService.CreateNotificationAsync(order.AccountId, "Cập nhật đơn hàng", $"Đơn hàng #{order.Id} của bạn đã được cập nhật sang trạng thái: {status}", "info");
                 await _realtimeService.BroadcastAdminDashboardUpdateAsync("OrderUpdated", order.Id);
             }
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +45,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Shop> Shops { get; set; }
 
     public virtual DbSet<ShopApplication> ShopApplications { get; set; }
+
+    public virtual DbSet<Notification> Notifications { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

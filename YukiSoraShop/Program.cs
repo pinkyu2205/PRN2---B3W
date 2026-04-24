@@ -10,6 +10,7 @@ namespace YukiSoraShop
     {
         public static void Main(string[] args)
         {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
             Log.Logger = new LoggerConfiguration()
                         .WriteTo.Console()
                         .WriteTo.File("Logs/logBootstrap-.txt", rollingInterval: RollingInterval.Day)
@@ -103,6 +104,18 @@ namespace YukiSoraShop
                 app.MapHub<CatalogHub>("/hubs/catalog");
                 
                 app.MapSePayEndpoints();
+
+                // Notification APIs
+                app.MapPost("/api/notifications/markAllAsRead", async (HttpContext context, Application.Services.Interfaces.INotificationService notiService) =>
+                {
+                    var userIdStr = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                    if (int.TryParse(userIdStr, out var accountId))
+                    {
+                        await notiService.MarkAllAsReadAsync(accountId);
+                        return Results.Ok();
+                    }
+                    return Results.Unauthorized();
+                }).RequireAuthorization();
 
                 app.MapGet("/", () => Results.Redirect("/Customer/Catalog"));
 

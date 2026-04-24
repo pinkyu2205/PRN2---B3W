@@ -1,4 +1,4 @@
-﻿using Application.IRepository;
+using Application.IRepository;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
@@ -24,6 +24,7 @@ namespace Application
         IProductDetailRepository ProductDetailRepository { get; }
         IShopRepository ShopRepository { get; }
         IShopApplicationRepository ShopApplicationRepository { get; }
+        INotificationRepository NotificationRepository { get; }
         public Task<int> SaveChangesAsync();
         IDbContextTransaction BeginTransaction();
         Task<IDbContextTransaction> BeginTransactionAsync();

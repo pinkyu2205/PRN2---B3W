@@ -1,4 +1,4 @@
-﻿using Application;
+using Application;
 using Application.Admin.Interfaces;
 using Application.IRepository;
 using Application.Services;
@@ -18,7 +18,7 @@ namespace Infrastructure
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddAutoMapper(cfg => { }, AppDomain.CurrentDomain.GetAssemblies());
-            services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(config.GetConnectionString("YukiSoraShop_DB")));
+            services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(config.GetConnectionString("YukiSoraShop_DB")));
 
             #region repo config
             services.AddScoped<IAccountRepository, AccountRepository>();
@@ -35,6 +35,7 @@ namespace Infrastructure
             services.AddScoped<IProductDetailRepository, ProductDetailRepository>();
             services.AddScoped<IShopRepository, ShopRepository>();
             services.AddScoped<IShopApplicationRepository, ShopApplicationRepository>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
             #endregion
 
             #region service config
@@ -48,6 +49,7 @@ namespace Infrastructure
             services.AddScoped<IPaymentMethodService, PaymentMethodService>();
             services.AddScoped<IShopService, ShopService>();
             services.AddScoped<IShopApplicationService, ShopApplicationService>();
+            services.AddScoped<INotificationService, NotificationService>();
             #endregion
 
             #region quartz config
